@@ -26,10 +26,10 @@ export function Stepper({
                   className={cn(
                     'flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold border-2 transition-all flex-shrink-0',
                     isCompleted
-                      ? 'bg-brand-green border-brand-green text-white'
+                      ? 'bg-transparent border-brand-green text-brand-green'
                       : isActive
-                        ? 'bg-brand-700 border-brand-700 text-white'
-                        : 'bg-white border-gray-300 text-gray-600',
+                        ? 'bg-brand-500 border-brand-500 text-white'
+                        : 'bg-white border-gray-300 text-gray-400',
                   )}
                   aria-current={isActive ? 'step' : undefined}
                 >
@@ -43,10 +43,10 @@ export function Stepper({
                   className={cn(
                     'text-xs font-semibold whitespace-nowrap hidden sm:block',
                     isActive
-                      ? 'text-brand-700'
+                      ? 'text-brand-500 font-bold'
                       : isCompleted
-                        ? 'text-brand-green'
-                        : 'text-gray-600',
+                        ? 'text-brand-text'
+                        : 'text-gray-400',
                   )}
                 >
                   {step}
@@ -56,8 +56,8 @@ export function Stepper({
                 <div
                   aria-hidden
                   className={cn(
-                    'flex-1 h-0.5 mx-2 min-w-[12px]',
-                    i < current ? 'bg-brand-green' : 'bg-gray-200',
+                    'flex-1 h-px mx-3 min-w-[16px]',
+                    i < current ? 'bg-brand-green' : 'bg-gray-300',
                   )}
                 />
               )}

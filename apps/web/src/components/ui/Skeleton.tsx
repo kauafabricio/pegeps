@@ -19,7 +19,7 @@ interface SkeletonCardProps {
 
 export function SkeletonCard({ lines = 3 }: SkeletonCardProps) {
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-card animate-pulse">
+    <div className="bg-white rounded-3xl p-6 border border-brand-100 animate-pulse">
       <Skeleton className="h-6 w-2/3 mb-3" />
       {Array.from({ length: lines }).map((_, i) => (
         <Skeleton key={i} className={`h-4 mb-2 ${i === lines - 1 ? 'w-1/2' : 'w-full'}`} />

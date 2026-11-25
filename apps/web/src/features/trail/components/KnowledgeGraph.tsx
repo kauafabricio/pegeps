@@ -1,7 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { Icon } from '@/components/ui/Icon';
 import { ModuleStatus, type ModuleWithStatus } from '@pegeps/domain';
 
 interface KnowledgeGraphProps {
@@ -12,35 +13,40 @@ interface KnowledgeGraphProps {
 
 const STATUS_META: Record<
   ModuleStatus,
-  { label: string; icon: string; badgeClass: string; cardClass: string }
+  {
+    label: string;
+    iconName: 'concluido' | 'desbloqueado' | 'lock';
+    textClass: string;
+    cardClass: string;
+  }
 > = {
   [ModuleStatus.Concluido]: {
     label: 'Concluído',
-    icon: '✓',
-    badgeClass: 'bg-emerald-50 text-brand-green border-emerald-200',
-    cardClass: 'border-brand-green bg-white hover:shadow-card-hover',
+    iconName: 'concluido',
+    textClass: 'text-brand-green',
+    cardClass: 'border-brand-green bg-[#DDFCE0]',
   },
   [ModuleStatus.Desbloqueado]: {
     label: 'Desbloqueado',
-    icon: '◉',
-    badgeClass: 'bg-peach text-brand-700 border-brand-200',
-    cardClass: 'border-brand-500 bg-white ring-2 ring-brand-500/20 hover:shadow-card-hover',
+    iconName: 'desbloqueado',
+    textClass: 'text-brand-700',
+    cardClass: 'border-brand-700 bg-peach',
   },
   [ModuleStatus.Bloqueado]: {
     label: 'Bloqueado',
-    icon: '🔒',
-    badgeClass: 'bg-gray-100 text-gray-600 border-gray-200',
-    cardClass: 'border-gray-200 bg-cream/70 opacity-80',
+    iconName: 'lock',
+    textClass: 'text-gray-600',
+    cardClass: 'border-gray-300 bg-[#F7F5F0] opacity-85',
   },
 };
 
-// Posições pentagonais (%) para os 5 módulos ao redor do nó central (50%, 50%)
+// Posições pentagonais (%) para os 5 módulos ao redor do nó central (50%, 52%)
 const PENTAGON_CARD_STYLES: Array<{ left: string; top: string; lineX: number; lineY: number }> = [
-  { left: '50%', top: '14%', lineX: 50, lineY: 18 },   // Topo
-  { left: '83%', top: '38%', lineX: 80, lineY: 40 },   // Direita superior
+  { left: '50%', top: '16%', lineX: 50, lineY: 22 },   // Topo
+  { left: '82%', top: '43%', lineX: 78, lineY: 44 },   // Direita superior
   { left: '72%', top: '79%', lineX: 70, lineY: 75 },   // Direita inferior
   { left: '28%', top: '79%', lineX: 30, lineY: 75 },   // Esquerda inferior
-  { left: '17%', top: '38%', lineX: 20, lineY: 40 },   // Esquerda superior
+  { left: '18%', top: '43%', lineX: 22, lineY: 44 },   // Esquerda superior
 ];
 
 export function KnowledgeGraph({
@@ -56,7 +62,7 @@ export function KnowledgeGraph({
       <div
         className={cn(
           'relative',
-          isPentagon && 'md:min-h-[580px]',
+          isPentagon && 'md:min-h-[670px]',
         )}
       >
         {/* Linhas SVG conectoras decorativas (apenas desktop quando pentagonal) */}
@@ -70,23 +76,15 @@ export function KnowledgeGraph({
             {modules.map((mod, idx) => {
               const pos = PENTAGON_CARD_STYLES[idx];
               if (!pos) return null;
-              const isActive = mod.status !== ModuleStatus.Bloqueado;
               return (
                 <line
                   key={`line-${mod.moduleId}`}
                   x1="50"
-                  y1="50"
+                  y1="52"
                   x2={pos.lineX}
                   y2={pos.lineY}
-                  stroke={
-                    mod.status === ModuleStatus.Concluido
-                      ? '#1F6B4A'
-                      : isActive
-                        ? '#FF7A00'
-                        : '#D1D5DB'
-                  }
-                  strokeWidth="0.45"
-                  strokeDasharray={isActive ? undefined : '1.2 1.2'}
+                  stroke="#5C554E"
+                  strokeWidth="0.35"
                 />
               );
             })}
@@ -97,10 +95,10 @@ export function KnowledgeGraph({
         <div
           className={cn(
             'mb-4 md:mb-0 flex justify-center',
-            isPentagon && 'md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:z-10',
+            isPentagon && 'md:absolute md:left-1/2 md:top-[52%] md:-translate-x-1/2 md:-translate-y-1/2 md:z-10',
           )}
         >
-          <div className="bg-brand-500 text-white rounded-3xl px-5 py-4 text-center shadow-card max-w-[190px] border-4 border-peach">
+          <div className="bg-brand-500 text-white rounded-full px-6 py-4 text-center max-w-[175px]">
             <p className="text-xs sm:text-sm font-black leading-snug">
               Gestão de projetos em startups
             </p>
@@ -136,22 +134,14 @@ export function KnowledgeGraph({
             const cardBody = (
               <div
                 className={cn(
-                  'rounded-3xl border-2 p-4 transition-all duration-200 text-left',
+                  'rounded-3xl border p-3.5 transition-colors duration-200 text-left',
                   meta.cardClass,
                 )}
               >
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold border',
-                      meta.badgeClass,
-                    )}
-                  >
-                    <span aria-hidden>{meta.icon}</span>
-                    <span>{meta.label}</span>
-                  </span>
-                  <span className="text-[11px] font-semibold text-gray-500" aria-hidden>
-                    {mod.order}/{modules.length}
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Icon name={meta.iconName} size={14} />
+                  <span className={cn('text-[11px] font-bold', meta.textClass)}>
+                    {meta.label}
                   </span>
                 </div>
 
@@ -162,7 +152,7 @@ export function KnowledgeGraph({
                 {mod.concepts.length > 0 && (
                   <ul className="flex flex-col gap-0.5 text-[11px] text-gray-600 mb-2" aria-label={`Conceitos de ${mod.title}`}>
                     {mod.concepts.map((c) => (
-                      <li key={c.id} className="truncate">
+                      <li key={c.id} className="leading-snug">
                         {c.name}
                       </li>
                     ))}
@@ -170,13 +160,13 @@ export function KnowledgeGraph({
                 )}
 
                 {variant === 'assessment' && (
-                  <div className="mt-2 pt-2 border-t border-gray-100">
+                  <div className="mt-3">
                     {isInteractiveAssessment ? (
                       <Link
                         href={`/avaliacoes/${mod.moduleId}`}
                         onClick={() => onSelect?.(mod)}
                         aria-label={`Responder avaliação — ${ariaLabel}`}
-                        className="inline-flex items-center justify-center w-full rounded-full bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-2 min-h-[40px] transition-colors"
+                        className="inline-flex items-center justify-center w-full rounded-full bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-3 py-1.5 min-h-[34px] transition-colors"
                       >
                         Responder avaliação
                       </Link>
@@ -185,10 +175,15 @@ export function KnowledgeGraph({
                         type="button"
                         disabled
                         aria-disabled="true"
-                        aria-label={`Responder avaliação indisponível — ${ariaLabel}`}
-                        className="inline-flex items-center justify-center w-full rounded-full bg-gray-100 text-gray-500 text-xs font-semibold px-3 py-2 min-h-[40px] cursor-not-allowed"
+                        aria-label={`${isConcluded ? 'Revisar avaliação' : 'Responder avaliação indisponível'} — ${ariaLabel}`}
+                        className={cn(
+                          'inline-flex items-center justify-center w-full rounded-full text-xs font-bold px-3 py-1.5 min-h-[34px] cursor-not-allowed',
+                          isConcluded
+                            ? 'bg-[#1B5E00] text-white'
+                            : 'bg-[#DDDAD0] text-gray-600',
+                        )}
                       >
-                        {isConcluded ? 'Avaliação concluída' : 'Responder avaliação'}
+                        {isConcluded ? 'Revisar avaliação' : 'Responder avaliação'}
                       </button>
                     )}
                   </div>
@@ -202,7 +197,7 @@ export function KnowledgeGraph({
                 style={desktopPositionStyle}
                 className={cn(
                   isPentagon &&
-                    'md:absolute md:-translate-x-1/2 md:-translate-y-1/2 md:w-[210px] md:z-20',
+                    'md:absolute md:-translate-x-1/2 md:-translate-y-1/2 md:w-[195px] md:z-20',
                 )}
               >
                 {variant === 'study' ? (

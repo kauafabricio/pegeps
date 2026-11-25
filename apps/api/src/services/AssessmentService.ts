@@ -29,6 +29,7 @@ export interface PublicAssessmentQuestion {
   id: string;
   statement: string;
   conceptId: string;
+  conceptName?: string;
   options: Array<{ id: string; text: string }>;
 }
 
@@ -40,18 +41,31 @@ export interface StartedAssessment {
   questions: PublicAssessmentQuestion[];
 }
 
+export interface ConceptResultFeedback {
+  id: string;
+  name: string;
+  correct: number;
+  total: number;
+  demonstrated: boolean;
+  feedback: string;
+}
+
 export interface SubmittedAssessmentResult {
   passed: boolean;
   correctCount: number;
   totalQuestions: number;
+  scorePercentage: number;
   passThreshold: number;
   moduleTitle: string;
-  demonstratedConcepts: Array<{ id: string; name: string }>;
+  demonstratedConcepts: Array<{ id: string; name: string; feedback?: string }>;
+  conceptFeedback: ConceptResultFeedback[];
   nextModule: { id: string; title: string } | null;
   completedCount: number;
   totalModules: number;
   questionFeedback: Array<{
     questionId: string;
+    conceptId: string;
+    conceptName: string;
     isCorrect: boolean;
     correctOptionId: string;
     explanation: string;
@@ -105,6 +119,7 @@ export class AssessmentService {
 
     const attempts = await this.assessmentRepo.findAttemptsByUserAndModule(userId, moduleId);
     const variant = this.pickNextVariant(bank.variants, attempts.map((a) => a.variantId));
+    const conceptNameById = new Map(unlocked.concepts.map((c) => [c.id, c.name]));
 
     return {
       moduleId,
@@ -115,6 +130,7 @@ export class AssessmentService {
         id: q.id,
         statement: q.statement,
         conceptId: q.conceptId,
+        conceptName: conceptNameById.get(q.conceptId) ?? q.conceptId,
         options: q.options,
       })),
     };
@@ -155,7 +171,11 @@ export class AssessmentService {
     }
 
     let correctCount = 0;
-    const conceptStats = new Map<string, { total: number; correct: number }>();
+    const conceptNameById = new Map(unlocked.concepts.map((c) => [c.id, c.name]));
+    const conceptStats = new Map<
+      string,
+      { total: number; correct: number; correctExp?: string; missedExp?: string; anyExp?: string }
+    >();
 
     const questionFeedback = variant.questions.map((q) => {
       const selected = answerMap.get(q.id);
@@ -172,10 +192,15 @@ export class AssessmentService {
       conceptStats.set(q.conceptId, {
         total: prev.total + 1,
         correct: prev.correct + (isCorrect ? 1 : 0),
+        correctExp: prev.correctExp ?? (isCorrect ? q.explanation : undefined),
+        missedExp: prev.missedExp ?? (!isCorrect ? q.explanation : undefined),
+        anyExp: prev.anyExp ?? q.explanation,
       });
 
       return {
         questionId: q.id,
+        conceptId: q.conceptId,
+        conceptName: conceptNameById.get(q.conceptId) ?? q.conceptId,
         isCorrect,
         correctOptionId: q.correctOptionId,
         explanation: q.explanation,
@@ -201,18 +226,40 @@ export class AssessmentService {
     const nextUnlocked = updatedModules.find((m) => m.status === ModuleStatus.Desbloqueado);
     const completedCount = updatedModules.filter((m) => m.status === ModuleStatus.Concluido).length;
 
-    const demonstratedConcepts = unlocked.concepts.filter((concept) => {
-      const stat = conceptStats.get(concept.id);
-      return stat ? stat.correct > 0 && stat.correct >= Math.ceil(stat.total / 2) : false;
-    });
+    const conceptFeedback: ConceptResultFeedback[] = unlocked.concepts
+      .filter((concept) => conceptStats.has(concept.id))
+      .map((concept) => {
+        const stat = conceptStats.get(concept.id)!;
+        const demonstrated = stat.correct > 0 && stat.correct >= Math.ceil(stat.total / 2);
+        const feedback = demonstrated
+          ? (stat.correctExp ?? stat.anyExp ?? '')
+          : (stat.missedExp ?? stat.anyExp ?? '');
+        return {
+          id: concept.id,
+          name: concept.name,
+          correct: stat.correct,
+          total: stat.total,
+          demonstrated,
+          feedback,
+        };
+      });
+
+    const demonstratedConcepts = conceptFeedback
+      .filter((c) => c.demonstrated)
+      .map(({ id, name, feedback }) => ({ id, name, feedback }));
+
+    const totalQuestions = variant.questions.length;
+    const scorePercentage = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
 
     return {
       passed,
       correctCount,
-      totalQuestions: variant.questions.length,
+      totalQuestions,
+      scorePercentage,
       passThreshold: ASSESSMENT_PASS_THRESHOLD,
       moduleTitle: unlocked.title,
       demonstratedConcepts,
+      conceptFeedback,
       nextModule: nextUnlocked ? { id: nextUnlocked.moduleId, title: nextUnlocked.title } : null,
       completedCount,
       totalModules: updatedModules.length,

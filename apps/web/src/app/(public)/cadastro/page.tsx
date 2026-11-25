@@ -28,7 +28,7 @@ export default function CadastroPage() {
               <Button
                 type="button"
                 size="sm"
-                className="bg-brand-600 hover:bg-brand-700"
+                className="bg-brand-500 hover:bg-brand-600"
                 onClick={() => setMode(mode === 'register' ? 'login' : 'register')}
               >
                 {mode === 'register' ? 'Entrar' : 'Criar conta'}
@@ -37,7 +37,7 @@ export default function CadastroPage() {
           </div>
           {mode === 'register' && (
             <div className="border-t border-gray-100 py-3 px-4">
-              <div className="max-w-md mx-auto">
+              <div className="max-w-sm mx-auto">
                 <Stepper
                   steps={['Sua conta', 'Diagnóstico', 'Sua trilha']}
                   current={0}
@@ -51,24 +51,19 @@ export default function CadastroPage() {
         {/* Main split content */}
         <main id="main-content" className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10">
           <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-10 items-center">
-            {/* Orange decorative panel */}
-            <div className="relative bg-brand-500 text-white rounded-4xl px-8 sm:px-10 py-14 sm:py-16 overflow-hidden shadow-card min-h-[340px] flex flex-col justify-end">
-              {/* Decorative circles */}
-              <div
+            {/* Orange decorative panel — image background + text overlay */}
+            <div className="relative rounded-4xl overflow-hidden flex flex-col justify-end" style={{ minHeight: '460px' }}>
+              {/* Background image */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/cadastro-panel.png"
+                alt=""
                 aria-hidden="true"
-                className="absolute top-6 left-10 w-24 h-24 rounded-full bg-brand-800/45 deco-circle"
+                className="absolute inset-0 w-full h-full object-cover"
               />
-              <div
-                aria-hidden="true"
-                className="absolute top-1/2 left-12 -translate-y-1/2 w-28 h-28 rounded-full border-2 border-brand-800/45 deco-circle"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute -bottom-8 right-12 w-28 h-28 rounded-full bg-brand-800/45 deco-circle"
-              />
-
-              <div className="relative z-10 text-right">
-                <p className="text-3xl sm:text-4xl font-black leading-[1.15] tracking-tight">
+              {/* Text overlay */}
+              <div className="relative z-10 text-right px-8 pb-8">
+                <p className="text-3xl sm:text-4xl font-black leading-[1.2] tracking-tight text-white">
                   interaja.
                   <br />
                   contextualize.

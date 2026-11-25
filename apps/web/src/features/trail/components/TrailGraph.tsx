@@ -65,8 +65,8 @@ export function TrailGraph({ modules }: TrailGraphProps) {
           <div className="flex-1 pb-6">
             <Card
               className={cn(
-                'transition-shadow',
-                mod.status === ModuleStatus.Desbloqueado && 'ring-2 ring-brand-500 shadow-md',
+                'transition-colors',
+                mod.status === ModuleStatus.Desbloqueado && 'ring-2 ring-brand-500',
                 mod.status === ModuleStatus.Bloqueado && 'opacity-60',
               )}
             >

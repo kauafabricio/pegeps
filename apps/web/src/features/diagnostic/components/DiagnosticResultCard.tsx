@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Icon } from '@/components/ui/Icon';
 import type { DiagnosticSubmitResult } from '../services/diagnostic.service';
 
 interface DiagnosticResultCardProps {
   result: DiagnosticSubmitResult;
   firstName?: string;
-  onReview: () => void;
 }
 
 const LEVEL_LABELS: Record<DiagnosticSubmitResult['level'], string> = {
@@ -21,7 +21,6 @@ const LEVEL_LABELS: Record<DiagnosticSubmitResult['level'], string> = {
 export function DiagnosticResultCard({
   result,
   firstName,
-  onReview,
 }: DiagnosticResultCardProps) {
   const {
     level,
@@ -53,7 +52,7 @@ export function DiagnosticResultCard({
         {/* Peach summary banner */}
         <div className="bg-peach rounded-3xl p-6 flex items-center justify-between gap-6 mb-6 relative overflow-hidden">
           <div>
-            <p className="text-3xl font-black text-brand-text">
+            <p className="text-3xl font-black text-brand-500">
               {correctCount} de {totalQuestions}
             </p>
             <p className="text-sm font-bold text-brand-text mb-1">
@@ -63,13 +62,14 @@ export function DiagnosticResultCard({
               Conhecimento em construção. Este resumo considera apenas as três situações do diagnóstico.
             </p>
           </div>
-          {/* Decorative orange badge graphic */}
-          <div
+          {/* Tom mascot image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/tom-right.png"
+            alt=""
             aria-hidden="true"
-            className="hidden sm:flex w-20 h-20 rounded-full bg-brand-500 items-center justify-center flex-shrink-0 relative"
-          >
-            <div className="w-12 h-12 rounded-full border-4 border-brand-yellow bg-white/20" />
-          </div>
+            className="hidden sm:block w-20 h-24 object-contain flex-shrink-0"
+          />
         </div>
 
         {/* Concept list */}
@@ -78,15 +78,8 @@ export function DiagnosticResultCard({
             const recognized = c.status === 'reconhecido';
             return (
               <li key={c.conceptId} className="py-4 first:pt-0 last:pb-0 flex items-start gap-3">
-                <span
-                  aria-hidden
-                  className={`mt-0.5 inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-bold flex-shrink-0 ${
-                    recognized
-                      ? 'bg-emerald-100 text-brand-green'
-                      : 'border-2 border-dashed border-gray-400 text-gray-600'
-                  }`}
-                >
-                  {recognized ? '✓' : '○'}
+                <span aria-hidden className="mt-0.5 flex-shrink-0">
+                  <Icon name={recognized ? 'concluido' : 'dashed'} size={20} />
                 </span>
                 <div>
                   <p className="text-sm font-bold text-brand-text">
@@ -105,10 +98,12 @@ export function DiagnosticResultCard({
 
       {/* Recommendation strip */}
       <div className="bg-peach border border-brand-200 rounded-3xl px-6 py-5 flex items-center justify-between gap-4 relative overflow-hidden">
-        <div className="flex items-start gap-3">
-          <span aria-hidden className="text-lg text-brand-700 mt-0.5">ⓘ</span>
+        <div className="flex items-start gap-3 sm:pr-20">
+          <span aria-hidden className="mt-0.5 flex-shrink-0">
+            <Icon name="info-orange" size={20} />
+          </span>
           <div>
-            <p className="text-sm font-bold text-brand-text">
+            <p className="text-sm font-bold text-brand-700">
               Recomendação: começar por {recommendedTrail.sequence[0] ?? recommendedTrail.title}.
             </p>
             <p className="text-xs text-brand-accent mt-0.5 leading-relaxed">
@@ -116,17 +111,19 @@ export function DiagnosticResultCard({
             </p>
           </div>
         </div>
+        {/* Decorative stacked rings matching Figma */}
         <div
           aria-hidden="true"
-          className="hidden sm:block w-14 h-14 rounded-full bg-brand-500 flex-shrink-0 translate-y-4"
+          className="hidden sm:block w-14 h-14 rounded-full border-2 border-brand-500 absolute -top-5 right-6 pointer-events-none"
+        />
+        <div
+          aria-hidden="true"
+          className="hidden sm:block w-14 h-14 rounded-full bg-brand-500 absolute -bottom-5 right-6 pointer-events-none"
         />
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <Button variant="ghost" onClick={onReview} size="md">
-          ← Revisar respostas
-        </Button>
+      <div className="flex items-center justify-end gap-4">
         <Link href="/escolher-trilha">
           <Button size="md">Escolher minha trilha →</Button>
         </Link>

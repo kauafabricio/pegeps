@@ -7,6 +7,7 @@ import { OnboardingStep } from '@pegeps/domain';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Icon, type IconName } from '@/components/ui/Icon';
 import { SkeletonCard } from '@/components/ui/Skeleton';
 import { DiagnosticWizard } from '@/features/diagnostic/components/DiagnosticWizard';
 import { DiagnosticResultCard } from '@/features/diagnostic/components/DiagnosticResultCard';
@@ -18,19 +19,19 @@ import { extractErrorMessage } from '@/lib/utils';
 
 type Phase = 'intro' | 'quiz' | 'result';
 
-const INTRO_CARDS = [
+const INTRO_CARDS: Array<{ icon: IconName; title: string; description: string }> = [
   {
-    icon: '📋',
+    icon: 'avaliacoes',
     title: 'Responda no seu ritmo',
     description: 'MVP, validação de hipóteses e priorização. Vale não saber ainda.',
   },
   {
-    icon: '🔍',
+    icon: 'search',
     title: 'Enxergue suas lacunas',
     description: 'Veja o que reconheceu e quais temas merecem atenção primeiro.',
   },
   {
-    icon: '🛤️',
+    icon: 'trilha',
     title: 'Escolha sua trilha',
     description: 'Receba uma recomendação ou comece pelo padrão iniciante.',
   },
@@ -129,7 +130,9 @@ export default function DiagnosticoPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {INTRO_CARDS.map((c) => (
             <Card key={c.title} className="border border-brand-100">
-              <div className="text-2xl mb-3" aria-hidden>{c.icon}</div>
+              <div className="mb-3" aria-hidden="true">
+                <Icon name={c.icon} size={24} />
+              </div>
               <h2 className="font-bold text-brand-text mb-1.5 text-sm">{c.title}</h2>
               <p className="text-xs text-gray-600 leading-relaxed">{c.description}</p>
             </Card>
@@ -138,7 +141,9 @@ export default function DiagnosticoPage() {
 
         {/* Notice */}
         <div className="bg-peach border border-brand-200 rounded-2xl px-5 py-4 flex items-start gap-3">
-          <span className="text-lg text-brand-700" aria-hidden>ⓘ</span>
+          <span className="mt-0.5 flex-shrink-0" aria-hidden="true">
+            <Icon name="info-orange" size={20} />
+          </span>
           <div>
             <p className="text-sm font-bold text-brand-text">Um ponto de partida, não um rótulo.</p>
             <p className="text-xs text-brand-accent mt-0.5">
@@ -184,7 +189,6 @@ export default function DiagnosticoPage() {
       <DiagnosticResultCard
         result={result}
         firstName={firstName}
-        onReview={() => setPhase('quiz')}
       />
     );
   }

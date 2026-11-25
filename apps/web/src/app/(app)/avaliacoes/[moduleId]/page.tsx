@@ -80,14 +80,20 @@ export default function AssessmentModulePage({ params }: AssessmentModulePagePro
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <Link href="/avaliacoes">
-          <Button variant="ghost" size="sm">← Avaliações</Button>
-        </Link>
-        <div className="max-w-sm w-full">
+      {/* Top stepper bar matching Figma */}
+      <div className="bg-white border-b border-brand-100 -mx-4 sm:-mx-8 -mt-8 px-4 sm:px-8 py-3">
+        <div className="max-w-md mx-auto">
           <Stepper steps={STEPS} current={currentStep} ariaLabel="Etapas da avaliação" />
         </div>
       </div>
+
+      {!(phase === 'result' && submitMutation.data?.passed) && (
+        <div>
+          <Link href="/avaliacoes">
+            <Button variant="ghost" size="sm">← Avaliações</Button>
+          </Link>
+        </div>
+      )}
 
       {phase === 'quiz' && (
         <AssessmentQuiz

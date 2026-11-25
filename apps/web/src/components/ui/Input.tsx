@@ -46,7 +46,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         />
         {success && !error && (
           <span
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-green"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-brand-green text-brand-green flex items-center justify-center text-[11px] font-bold"
             aria-hidden
           >
             ✓

@@ -161,12 +161,14 @@ export function TutorChat({ onGoToAssessment, onActiveModuleChange }: TutorChatP
           >
             {msg.sender === 'tom' ? (
               <>
-                <div
-                  className="w-10 h-10 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black flex-shrink-0"
+                {/* Tom avatar — matches Figma mascot */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/tom-right.png"
+                  alt=""
                   aria-hidden="true"
-                >
-                  <span className="w-5 h-5 rounded-full bg-white/30 block" />
-                </div>
+                  className="w-10 h-12 object-contain flex-shrink-0"
+                />
                 <div className="flex-1 max-w-2xl">
                   <p className="text-xs font-bold text-brand-700 mb-1">Tom</p>
                   <div className="bg-cream border border-brand-100 rounded-2xl px-4 py-3 text-sm text-brand-text leading-relaxed">
@@ -259,10 +261,10 @@ export function TutorChat({ onGoToAssessment, onActiveModuleChange }: TutorChatP
         {/* Área de texto desabilitada conforme decisão do projeto (interação por botões) */}
         <div
           aria-hidden="true"
-          className="rounded-full border border-gray-200 bg-white/70 px-4 py-2.5 flex items-center justify-between text-xs text-gray-500 select-none"
+          className="rounded-full border border-gray-200 bg-white px-4 py-2.5 flex items-center justify-between gap-2 text-sm text-gray-400 select-none"
         >
-          <span>Selecione uma das opções acima para conversar com o Tom</span>
-          <span className="w-7 h-7 rounded-full bg-brand-200 text-brand-700 flex items-center justify-center font-bold">
+          <span>Oi, Marina! Vamos iniciar seus estudos em Estratégia e discovery?</span>
+          <span className="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold flex-shrink-0">
             ↑
           </span>
         </div>

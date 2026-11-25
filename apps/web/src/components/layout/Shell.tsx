@@ -16,24 +16,23 @@ export function Shell({ children, sidebar, mobileNav }: ShellProps) {
           {mobileNav}
         </div>
       )}
-      <div className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="flex-1 w-full flex">
         {sidebar ? (
-          <div className="flex gap-8 items-start">
+          <div className="flex flex-1 w-full">
             <aside
-              className="hidden lg:block w-56 flex-shrink-0 bg-white rounded-3xl p-4 shadow-card border border-brand-100 sticky top-24"
+              className="hidden lg:block w-52 flex-shrink-0 bg-white border-r border-brand-100 px-3 py-6"
               aria-label="Navegação lateral"
             >
-              <p className="px-4 pt-1 pb-2 text-[11px] font-bold uppercase tracking-widest text-brand-accent">
-                Navegação
-              </p>
-              {sidebar}
+              <div className="sticky top-24">
+                {sidebar}
+              </div>
             </aside>
-            <main id="main-content" className="flex-1 min-w-0">
+            <main id="main-content" className="flex-1 min-w-0 px-4 sm:px-8 py-8">
               {children}
             </main>
           </div>
         ) : (
-          <main id="main-content" className="w-full">
+          <main id="main-content" className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
             {children}
           </main>
         )}

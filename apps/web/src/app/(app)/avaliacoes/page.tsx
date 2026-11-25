@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { assessmentService } from '@/features/assessment/services/assessment.service';
 import { KnowledgeGraph } from '@/features/trail/components/KnowledgeGraph';
 import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Icon } from '@/components/ui/Icon';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { Skeleton, SkeletonCard } from '@/components/ui/Skeleton';
 
@@ -37,9 +39,12 @@ export default function AvaliacoesPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-xs font-bold text-brand-700 uppercase tracking-widest mb-1">
-          Avaliações por módulo
-        </p>
+        <div className="mb-2">
+          <Badge variant="orange">
+            <Icon name="avaliacoes" size={14} />
+            Avaliações por módulo
+          </Badge>
+        </div>
         <h1 className="text-2xl sm:text-3xl font-black text-brand-text mb-1">Avaliações</h1>
         <p className="text-sm text-gray-600">
           Responda à avaliação do módulo desbloqueado para avançar na sua trilha.

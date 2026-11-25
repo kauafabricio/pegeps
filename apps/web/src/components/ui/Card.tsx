@@ -19,9 +19,9 @@ export function Card({ children, className, as: Tag = 'div', selected, onClick, 
   return (
     <Tag
       className={cn(
-        'bg-white rounded-3xl shadow-card border border-transparent p-6 transition-all duration-200',
+        'bg-white rounded-3xl border border-transparent p-6 transition-colors duration-200',
         selected && 'border-brand-500 ring-2 ring-brand-500 bg-peach',
-        onClick && 'cursor-pointer hover:shadow-card-hover',
+        onClick && 'cursor-pointer',
         className,
       )}
       onClick={onClick}

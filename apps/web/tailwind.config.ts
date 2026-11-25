@@ -38,8 +38,8 @@ const config: Config = {
         '4xl': '2rem',
       },
       boxShadow: {
-        card: '0 2px 16px 0 rgba(42,36,32,0.08)',
-        'card-hover': '0 8px 32px 0 rgba(255,122,0,0.15)',
+        card: 'none',
+        'card-hover': 'none',
       },
     },
   },

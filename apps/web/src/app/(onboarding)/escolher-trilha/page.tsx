@@ -8,6 +8,7 @@ import { useAuth } from '@/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Icon } from '@/components/ui/Icon';
 import { SkeletonCard } from '@/components/ui/Skeleton';
 import {
   diagnosticService,
@@ -82,50 +83,57 @@ export default function EscolherTrilhaPage() {
                 type="button"
                 role="radio"
                 aria-checked={isSelected}
-                selected={isSelected}
                 onClick={() => setSelectedId(trail.id)}
-                className={`text-left w-full relative overflow-hidden border-2 ${
+                className={`text-left w-full relative overflow-hidden bg-white p-7 rounded-3xl ${
                   isSelected
-                    ? 'border-brand-700 bg-peach'
-                    : 'border-gray-200 bg-white hover:border-brand-300'
+                    ? 'border-2 border-brand-700'
+                    : 'border border-gray-400/70 hover:border-brand-400'
                 }`}
                 aria-label={`${trail.title}, ${isRecommended ? 'Recomendada para você' : 'Padrão iniciante'}, ${trail.modulesCount} módulos`}
               >
-                {/* Decorative orange arc */}
-                <div
+                {/* Background art from Figma */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={isRecommended ? '/trail-art-recommended.png' : '/trail-art-default.png'}
+                  alt=""
                   aria-hidden="true"
-                  className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-brand-500/85 pointer-events-none"
+                  className="absolute inset-0 w-full h-full object-cover object-right-bottom pointer-events-none"
                 />
 
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <Badge variant={isRecommended ? 'orange' : 'default'}>
-                    {isRecommended ? 'Recomendada para você' : 'Padrão iniciante'}
-                  </Badge>
-                  <span
-                    aria-hidden
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                      isSelected
-                        ? 'bg-brand-700 border-brand-700 text-white'
-                        : 'border-gray-300 bg-white'
-                    }`}
-                  >
-                    {isSelected ? '✓' : ''}
-                  </span>
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex items-center justify-between gap-2 mb-5">
+                    <Badge variant="orange" className="border-0">
+                      <Icon name="desbloqueado" size={14} />
+                      {isRecommended ? 'Recomendada para você' : 'Padrão iniciante'}
+                    </Badge>
+                    <span
+                      aria-hidden
+                      className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        isSelected
+                          ? 'bg-brand-700 border-2 border-brand-700'
+                          : 'border border-gray-500 bg-white'
+                      }`}
+                    >
+                      {isSelected && <span className="w-2 h-2 rounded-full bg-white" />}
+                    </span>
+                  </div>
+
+                  <h2 className="text-xl font-black text-brand-text mb-2">{trail.title}</h2>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-5">{trail.description}</p>
+
+                  <hr className="border-gray-200 mb-5" />
+
+                  <p className="text-xs font-bold text-brand-text mb-2">
+                    {trail.modulesCount} módulos • sequência guiada
+                  </p>
+                  <p className="text-[11px] text-gray-500 leading-relaxed mb-5 pr-8">
+                    {trail.sequence.join(' → ')}
+                  </p>
+
+                  <p className="text-xs font-semibold text-brand-700 pr-12 mt-auto">
+                    Primeiro passo: {trail.firstStep}
+                  </p>
                 </div>
-
-                <h2 className="text-xl font-black text-brand-text mb-1">{trail.title}</h2>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4">{trail.description}</p>
-
-                <p className="text-xs font-bold text-brand-text mb-1">
-                  {trail.modulesCount} módulos • sequência guiada
-                </p>
-                <p className="text-xs text-gray-600 leading-relaxed mb-4 pr-8">
-                  {trail.sequence.join(' → ')}
-                </p>
-
-                <p className="text-xs font-semibold text-brand-700 pr-12">
-                  Primeiro passo: {trail.firstStep}
-                </p>
               </Card>
             );
           })}
@@ -134,7 +142,9 @@ export default function EscolherTrilhaPage() {
 
       {/* Notice strip */}
       <div className="bg-peach border border-brand-200 rounded-2xl px-5 py-4 flex items-start gap-3">
-        <span aria-hidden className="text-lg text-brand-700">ⓘ</span>
+        <span aria-hidden className="mt-0.5 flex-shrink-0">
+          <Icon name="info-orange" size={20} />
+        </span>
         <div>
           <p className="text-sm font-bold text-brand-text">Selecione uma trilha para continuar.</p>
           <p className="text-xs text-brand-accent mt-0.5">

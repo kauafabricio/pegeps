@@ -105,7 +105,7 @@ export function AssessmentQuiz({
         />
 
         <p className="text-xs font-bold text-brand-700 uppercase tracking-wider mb-2">
-          {moduleTitle} • {question.conceptId.replace(/-/g, ' ')}
+          {moduleTitle} • {question.conceptName ?? question.conceptId.replace(/-/g, ' ')}
         </p>
 
         <h2

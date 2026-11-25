@@ -17,6 +17,7 @@ export interface AssessmentQuestion {
   id: string;
   statement: string;
   conceptId: string;
+  conceptName?: string;
   options: Array<{ id: string; text: string }>;
 }
 
@@ -28,18 +29,31 @@ export interface AssessmentStartResponse {
   questions: AssessmentQuestion[];
 }
 
+export interface ConceptResultFeedback {
+  id: string;
+  name: string;
+  correct: number;
+  total: number;
+  demonstrated: boolean;
+  feedback: string;
+}
+
 export interface AssessmentSubmitResult {
   passed: boolean;
   correctCount: number;
   totalQuestions: number;
+  scorePercentage?: number;
   passThreshold: number;
   moduleTitle: string;
-  demonstratedConcepts: Array<{ id: string; name: string }>;
+  demonstratedConcepts: Array<{ id: string; name: string; feedback?: string }>;
+  conceptFeedback?: ConceptResultFeedback[];
   nextModule: { id: string; title: string } | null;
   completedCount: number;
   totalModules: number;
   questionFeedback: Array<{
     questionId: string;
+    conceptId?: string;
+    conceptName?: string;
     isCorrect: boolean;
     correctOptionId: string;
     explanation: string;
