@@ -1,0 +1,128 @@
+[
+  {
+    "slug": "comece-pelos-fundamentos",
+    "title": "Comece pelos fundamentos",
+    "description": "Uma introdução ampla e progressiva para quem quer dominar o essencial da gestão de projetos em startups.",
+    "kind": "default",
+    "firstStep": "Entender como descobrir valor antes de construir.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "metodologias",
+      "priorizacao-roadmap",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-iniciante-completo",
+    "title": "Da ideia à execução",
+    "description": "Foco em validar hipóteses, definir seu primeiro MVP e priorizar o que realmente importa.",
+    "kind": "diagnostic",
+    "firstStep": "Testar a hipótese certa com o menor esforço.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "priorizacao-roadmap",
+      "metodologias",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-priorizacao",
+    "title": "Base sólida de Discovery",
+    "description": "Você já sabe priorizar; agora fortaleça MVP e validação de hipóteses antes de acelerar entregas.",
+    "kind": "diagnostic",
+    "firstStep": "Estruturar hipóteses testáveis e experimentos curtos.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "metodologias",
+      "priorizacao-roadmap",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-validacao",
+    "title": "MVP e Priorização na prática",
+    "description": "Você já domina validação; vamos transformar hipóteses em MVPs enxutos e roadmaps priorizados.",
+    "kind": "diagnostic",
+    "firstStep": "Desenhar um MVP mínimo e ordenar o backlog por impacto.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "priorizacao-roadmap",
+      "metodologias",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-discovery",
+    "title": "Foco em MVP enxuto",
+    "description": "Fortaleça como recortar escopo em MVPs que geram aprendizado real antes de escalar processos.",
+    "kind": "diagnostic",
+    "firstStep": "Definir o menor experimento capaz de validar valor.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "metodologias",
+      "priorizacao-roadmap",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-mvp",
+    "title": "Evidências e Decisão de Produto",
+    "description": "Você entende o papel do MVP; agora pratique experimentos com clientes e critérios de priorização.",
+    "kind": "diagnostic",
+    "firstStep": "Trocar opiniões internas por experimentos com critério de sucesso.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "priorizacao-roadmap",
+      "metodologias",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-discovery-prior",
+    "title": "Validação orientada a evidências",
+    "description": "Foco em testar hipóteses com clientes reais antes de comprometer a capacidade do time.",
+    "kind": "diagnostic",
+    "firstStep": "Montar seu primeiro experimento com critério objetivo.",
+    "moduleSlugs": [
+      "estrategia-discovery",
+      "metodologias",
+      "priorizacao-roadmap",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-foco-priorizacao-b",
+    "title": "Priorização e Roadmap Estratégico",
+    "description": "Você já domina MVP e validação; comece organizando impacto, esforço e roadmap do time.",
+    "kind": "diagnostic",
+    "firstStep": "Aplicar RICE e MoSCoW para decidir o próximo ciclo.",
+    "moduleSlugs": [
+      "priorizacao-roadmap",
+      "estrategia-discovery",
+      "metodologias",
+      "pessoas-cultura",
+      "metricas-riscos"
+    ]
+  },
+  {
+    "slug": "diagnostico-avancado",
+    "title": "Aceleração e Escala em Startups",
+    "description": "Base sólida confirmada! Comece por cadências ágeis, priorização avançada e métricas de crescimento.",
+    "kind": "diagnostic",
+    "firstStep": "Escolher a cadência ideal para acelerar entregas com previsibilidade.",
+    "moduleSlugs": [
+      "metodologias",
+      "priorizacao-roadmap",
+      "metricas-riscos",
+      "pessoas-cultura",
+      "estrategia-discovery"
+    ]
+  }
+]
