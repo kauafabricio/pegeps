@@ -1,12 +1,17 @@
 import { z } from 'zod';
-import { generateGeminiJson } from '../config/gemini.js';
 import { ADAPTATION_COOLDOWN_DAYS, TrailKind } from '../domain/index.js';
-import { ConflictError, NotFoundError, TooManyRequestsError } from '../errors/AppError.js';
-import type { ModuleEntity, ModuleRepository } from '../repositories/ModuleRepository.js';
+import {
+  BadGatewayError,
+  ConflictError,
+  NotFoundError,
+  TooManyRequestsError,
+} from '../errors/AppError.js';
+import type { ModuleRepository } from '../repositories/ModuleRepository.js';
 import type { ProgressRepository } from '../repositories/ProgressRepository.js';
 import type { TrailAdaptationRepository } from '../repositories/TrailAdaptationRepository.js';
 import type { TrailEntity, TrailRepository } from '../repositories/TrailRepository.js';
-import type { UserEntity, UserRepository } from '../repositories/UserRepository.js';
+import type { UserRepository } from '../repositories/UserRepository.js';
+import type { TrailAdapterAI } from './AiService.js';
 
 export interface AdaptStatusOutput {
   canAdapt: boolean;
@@ -31,6 +36,7 @@ export class AdaptTrailService {
     private readonly moduleRepo: ModuleRepository,
     private readonly progressRepo: ProgressRepository,
     private readonly adaptationRepo: TrailAdaptationRepository,
+    private readonly aiAdapter: TrailAdapterAI,
   ) {}
 
   async getStatus(userId: string): Promise<AdaptStatusOutput> {
@@ -105,10 +111,14 @@ export class AdaptTrailService {
     }
 
     const remainingIdsSet = new Set(remainingModules.map((m) => m.id));
-    const prompt = this.buildPrompt(user, context, remainingModules);
-
-    const aiResult = await generateGeminiJson<AiTrailPayload>(prompt, (raw) => {
-      const parsed = aiTrailResponseSchema.parse(raw);
+    let aiResult: AiTrailPayload;
+    try {
+      const rawAiResult = await this.aiAdapter.adaptTrail({
+        user,
+        context,
+        remainingModules,
+      });
+      const parsed = aiTrailResponseSchema.parse(rawAiResult);
       const seen = new Set<string>();
 
       for (const id of parsed.moduleIds) {
@@ -118,8 +128,15 @@ export class AdaptTrailService {
         seen.add(id);
       }
 
-      return parsed;
-    });
+      aiResult = parsed;
+    } catch (err) {
+      if (err instanceof BadGatewayError) {
+        throw err;
+      }
+      throw new BadGatewayError(
+        'Não conseguimos adaptar sua trilha com IA agora. Sua trilha atual foi mantida intacta. Tente novamente em instantes.',
+      );
+    }
 
     const preservedCompletedIds = this.preserveCompletedOrder(completedIds, currentTrail);
     const finalModuleIds = [...preservedCompletedIds, ...aiResult.moduleIds];
@@ -165,40 +182,5 @@ export class AdaptTrailService {
       }
     }
     return ordered;
-  }
-
-  private buildPrompt(
-    user: UserEntity,
-    context: string,
-    remainingModules: ModuleEntity[],
-  ): string {
-    const profileSummary = {
-      cargo: user.profile.jobTitle ?? 'Não informado',
-      estagioStartup: user.profile.startupStage ?? 'Não informado',
-      estiloEstudo: user.profile.learningStyle ?? 'Não informado',
-    };
-
-    const catalogPayload = remainingModules.map((m) => ({
-      id: m.id,
-      title: m.title,
-      description: m.description,
-      concepts: m.concepts.map((c) => c.name),
-    }));
-
-    return [
-      'Você é um especialista em gestão de projetos em startups na plataforma Pegeps.',
-      'Sua tarefa é ordenar e selecionar módulos DO CATÁLOGO abaixo (sem criar novos módulos nem alterar IDs) para atender à realidade e dores do usuário.',
-      '',
-      `Perfil do usuário: ${JSON.stringify(profileSummary)}`,
-      `Contexto e dores do usuário: "${context}"`,
-      '',
-      `Módulos disponíveis (NÃO concluídos): ${JSON.stringify(catalogPayload)}`,
-      '',
-      'Regras estritas:',
-      '1. Responda EXCLUSIVAMENTE com JSON válido no formato: {"title": string, "description": string, "moduleIds": string[]}.',
-      '2. Use somente os IDs exatos listados em "Módulos disponíveis".',
-      '3. Não repita IDs e inclua pelo menos 1 módulo (preferencialmente ordene os mais urgentes primeiro).',
-      '4. Escreva title (até 80 chars) e description (até 250 chars) em português do Brasil, de forma clara e motivadora.',
-    ].join('\n');
   }
 }

@@ -30,4 +30,17 @@ export class DiagnosticController {
     );
     res.status(200).json(result);
   };
+
+  getTrailOptions = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const options = await this.diagnosticService.getTrailOptions(getAuthUserId(req));
+    res.status(200).json(options);
+  };
+
+  chooseTrailById = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const result = await this.diagnosticService.chooseTrailById(
+      getAuthUserId(req),
+      req.body.trailId,
+    );
+    res.status(200).json(result);
+  };
 }

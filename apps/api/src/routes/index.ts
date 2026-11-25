@@ -16,8 +16,16 @@ export function createApiRouter(container: Container): Router {
   });
 
   router.use('/auth', createAuthRouter(container.controllers.auth));
+  router.use('/users/me', createProfileRouter(container.controllers.profile));
   router.use('/diagnostic', createDiagnosticRouter(container.controllers.diagnostic));
-  router.use('/trails', createTrailRouter(container.controllers.trail));
+  router.use(
+    '/trails',
+    createTrailRouter(
+      container.controllers.trail,
+      container.controllers.diagnostic,
+      container.controllers.adapt,
+    ),
+  );
   router.use('/tutor', createTutorRouter(container.controllers.tutor));
   router.use('/assessments', createAssessmentRouter(container.controllers.assessment));
   router.use('/adapt', createAdaptRouter(container.controllers.adapt));

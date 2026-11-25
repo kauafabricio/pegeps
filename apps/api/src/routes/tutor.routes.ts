@@ -8,6 +8,7 @@ export function createTutorRouter(controller: TutorController): Router {
   const router = Router();
 
   router.use(requireAuth);
+  router.get('/start', controller.start);
   router.post('/step', validate({ body: tutorStepSchema }), controller.step);
 
   return router;

@@ -16,6 +16,7 @@ import { TrailAdaptationRepository } from './repositories/TrailAdaptationReposit
 import { TrailRepository } from './repositories/TrailRepository.js';
 import { UserRepository } from './repositories/UserRepository.js';
 import { AdaptTrailService } from './services/AdaptTrailService.js';
+import { GeminiTrailAdapterAI } from './services/AiService.js';
 import { AssessmentService } from './services/AssessmentService.js';
 import { AuthService } from './services/AuthService.js';
 import { DiagnosticService } from './services/DiagnosticService.js';
@@ -49,6 +50,7 @@ export function buildContainer(): Container {
   const specialistRepo = new SpecialistRequestRepository();
 
   const storageService = new LocalDiskStorageService();
+  const aiAdapter = new GeminiTrailAdapterAI();
 
   const authService = new AuthService(userRepo);
   const diagnosticService = new DiagnosticService(
@@ -79,6 +81,7 @@ export function buildContainer(): Container {
     moduleRepo,
     progressRepo,
     adaptationRepo,
+    aiAdapter,
   );
   const specialistService = new SpecialistService(userRepo, specialistRepo, mailer);
   const profileService = new ProfileService(userRepo, storageService);

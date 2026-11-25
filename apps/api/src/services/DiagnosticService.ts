@@ -30,6 +30,8 @@ export interface TrailPreview {
   title: string;
   description: string;
   firstStep: string;
+  modulesCount: number;
+  sequence: string[];
   modules: Array<{ id: string; slug: string; title: string }>;
 }
 
@@ -37,10 +39,13 @@ export interface DiagnosticSummary {
   level: DiagnosticLevel;
   correctCount: number;
   totalQuestions: number;
+  recommendationText: string;
+  recommendedTrailId: string;
   concepts: Array<{
     conceptId: string;
     label: string;
     status: 'reconhecido' | 'a_desenvolver';
+    feedback: string;
   }>;
   recommendedTrail: TrailPreview;
   defaultTrail: TrailPreview;
@@ -189,6 +194,61 @@ export class DiagnosticService {
     };
   }
 
+  async getTrailOptions(
+    userId: string,
+  ): Promise<{ recommended: TrailPreview; default: TrailPreview }> {
+    const summary = await this.getLatestResult(userId);
+    return {
+      recommended: summary.recommendedTrail,
+      default: summary.defaultTrail,
+    };
+  }
+
+  async chooseTrailById(
+    userId: string,
+    trailId: string,
+  ): Promise<{ user: PublicUser; activeTrailId: string }> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw new NotFoundError('Usuário não encontrado.');
+    }
+
+    const [latestDiagnostic, defaultTrail] = await Promise.all([
+      this.diagnosticRepo.findLatestByUserId(userId),
+      this.trailRepo.findBySlug(DEFAULT_TRAIL_SLUG),
+    ]);
+
+    if (!defaultTrail) {
+      throw new NotFoundError('Trilha padrão não encontrada.');
+    }
+
+    const isDefault = defaultTrail.id === trailId;
+    const isRecommended = latestDiagnostic?.recommendedTrailId === trailId;
+
+    if (!isDefault && !isRecommended) {
+      throw new ValidationError(
+        'Você só pode escolher entre a trilha recomendada pelo diagnóstico ou a trilha padrão.',
+        'INVALID_TRAIL_CHOICE',
+      );
+    }
+
+    const updatedUser = await this.userRepo.updateOnboarding(userId, {
+      onboardingStep: OnboardingStep.Done,
+      activeTrailId: trailId,
+    });
+
+    await this.progressRepo.ensureForUser(userId);
+
+    if (!updatedUser) {
+      throw new NotFoundError('Usuário não encontrado.');
+    }
+
+    return {
+      user: toPublicUser(updatedUser),
+      activeTrailId: trailId,
+    };
+  }
+
   private async buildSummary(
     hits: { mvpHit: boolean; validacaoHit: boolean; priorizacaoHit: boolean },
     recommendedTrail: TrailEntity,
@@ -197,10 +257,16 @@ export class DiagnosticService {
     const correctCount = [hits.mvpHit, hits.validacaoHit, hits.priorizacaoHit].filter(Boolean).length;
 
     let level: DiagnosticLevel = 'inicial';
+    let recommendationText =
+      'Recomendamos começar pelos fundamentos de descoberta, validação e priorização para ganhar tração com segurança.';
     if (correctCount >= DIAGNOSTIC_LEVEL_THRESHOLDS.ADVANCED_MIN) {
       level = 'avancado';
+      recommendationText =
+        'Você já domina os conceitos-base! Recomendamos acelerar com metodologias ágeis, priorização avançada e métricas.';
     } else if (correctCount >= DIAGNOSTIC_LEVEL_THRESHOLDS.INTERMEDIATE_MIN) {
       level = 'intermediario';
+      recommendationText =
+        'Você tem uma boa base inicial. Recomendamos focar nos pontos em aberto para consolidar suas decisões de produto.';
     }
 
     const [recommendedPreview, defaultPreview] = await Promise.all([
@@ -212,21 +278,32 @@ export class DiagnosticService {
       level,
       correctCount,
       totalQuestions: DIAGNOSTIC_QUESTIONS.length,
+      recommendationText,
+      recommendedTrailId: recommendedTrail.id,
       concepts: [
         {
           conceptId: 'mvp',
           label: 'MVP',
           status: hits.mvpHit ? 'reconhecido' : 'a_desenvolver',
+          feedback: hits.mvpHit
+            ? 'Você reconhece que o MVP serve para testar uma hipótese importante com o menor esforço.'
+            : 'Próximo passo: recortar o menor experimento possível para aprender antes de construir tudo.',
         },
         {
           conceptId: 'validacao-hipoteses',
           label: 'Validação de hipóteses',
           status: hits.validacaoHit ? 'reconhecido' : 'a_desenvolver',
+          feedback: hits.validacaoHit
+            ? 'Você reconhece que hipóteses precisam ser validadas com clientes e critérios objetivos.'
+            : 'Próximo passo: trocar a opinião interna por evidências de clientes e critérios claros.',
         },
         {
           conceptId: 'rice',
           label: 'Priorização',
           status: hits.priorizacaoHit ? 'reconhecido' : 'a_desenvolver',
+          feedback: hits.priorizacaoHit
+            ? 'Você reconhece que a priorização deve equilibrar impacto, evidências e esforço.'
+            : 'Próximo passo: comparar impacto, evidências e esforço antes de escolher o próximo teste.',
         },
       ],
       recommendedTrail: recommendedPreview,
@@ -248,6 +325,8 @@ export class DiagnosticService {
       title: trail.title,
       description: trail.description,
       firstStep: trail.firstStep,
+      modulesCount: orderedModules.length,
+      sequence: orderedModules.map((m) => m.title),
       modules: orderedModules,
     };
   }

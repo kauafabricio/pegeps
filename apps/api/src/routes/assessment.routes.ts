@@ -13,6 +13,7 @@ export function createAssessmentRouter(controller: AssessmentController): Router
   router.use(requireAuth);
   router.get('/', controller.list);
   router.get('/:moduleId/start', validate({ params: moduleIdParamsSchema }), controller.start);
+  router.post('/:moduleId/start', validate({ params: moduleIdParamsSchema }), controller.start);
   router.post(
     '/:moduleId/submit',
     validate({ params: moduleIdParamsSchema, body: submitAssessmentSchema }),

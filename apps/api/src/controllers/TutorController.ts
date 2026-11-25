@@ -5,6 +5,11 @@ import type { TutorService } from '../services/TutorService.js';
 export class TutorController {
   constructor(private readonly tutorService: TutorService) {}
 
+  start = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const output = await this.tutorService.step(getAuthUserId(req), { action: 'start' });
+    res.status(200).json(output);
+  };
+
   step = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
     const output = await this.tutorService.step(getAuthUserId(req), req.body);
     res.status(200).json(output);

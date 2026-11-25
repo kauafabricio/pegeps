@@ -1,0 +1,128 @@
+@baseUrl = http://localhost:3001/api
+@moduleId = 000000000000000000000000
+@trailId = 000000000000000000000000
+
+### Health check
+GET {{baseUrl}}/health
+
+### Auth — Registrar
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "email": "maria@startup.com.br",
+  "password": "Password123!"
+}
+
+### Auth — Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "maria@startup.com.br",
+  "password": "Password123!"
+}
+
+### Auth — Usuário atual
+GET {{baseUrl}}/auth/me
+
+### Auth — Logout
+POST {{baseUrl}}/auth/logout
+
+### Perfil — Obter (RN9)
+GET {{baseUrl}}/users/me
+
+### Perfil — Atualizar (RN9)
+PATCH {{baseUrl}}/users/me
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "jobTitle": "Product Manager",
+  "startupStage": "validacao",
+  "learningStyle": "visual"
+}
+
+### Perfil — Upload de avatar (RN9)
+POST {{baseUrl}}/users/me/avatar
+Content-Type: multipart/form-data; boundary=----PegepsBoundary
+
+------PegepsBoundary
+Content-Disposition: form-data; name="avatar"; filename="avatar.png"
+Content-Type: image/png
+
+< ./avatar.png
+------PegepsBoundary--
+
+### Diagnóstico — Listar 3 perguntas (sem gabarito)
+GET {{baseUrl}}/diagnostic/questions
+
+### Diagnóstico — Enviar respostas
+POST {{baseUrl}}/diagnostic/submit
+Content-Type: application/json
+
+{
+  "answers": [
+    { "questionId": "diag-mvp", "optionId": "a" },
+    { "questionId": "diag-validacao", "optionId": "a" },
+    { "questionId": "diag-priorizacao", "optionId": "c" }
+  ]
+}
+
+### Trilhas — Opções (recomendada vs padrão)
+GET {{baseUrl}}/trails/options
+
+### Trilhas — Escolher trilha inicial por ID
+POST {{baseUrl}}/trails/choose
+Content-Type: application/json
+
+{
+  "trailId": "{{trailId}}"
+}
+
+### Trilhas — Grafo da trilha ativa
+GET {{baseUrl}}/trails/active
+
+### Tutor Tom — Iniciar fluxo
+GET {{baseUrl}}/tutor/start
+
+### Tutor Tom — Avançar etapa
+POST {{baseUrl}}/tutor/step
+Content-Type: application/json
+
+{
+  "action": "select_style",
+  "learningStyle": "visual"
+}
+
+### Avaliações — Listar módulos e status
+GET {{baseUrl}}/assessments
+
+### Avaliações — Iniciar tentativa (10 questões sem gabarito)
+POST {{baseUrl}}/assessments/{{moduleId}}/start
+
+### Avaliações — Enviar respostas
+POST {{baseUrl}}/assessments/{{moduleId}}/submit
+Content-Type: application/json
+
+{
+  "variantId": "var-1",
+  "answers": [
+    { "questionId": "q1", "selectedOptionId": "a" }
+  ]
+}
+
+### Adaptação — Status do cooldown (15 dias)
+GET {{baseUrl}}/trails/adapt/status
+
+### Adaptação — Adaptar trilha com IA (RN7)
+POST {{baseUrl}}/trails/adapt/ai
+Content-Type: application/json
+
+{
+  "context": "Nosso time está com dificuldade para priorizar funcionalidades e validar hipóteses com clientes."
+}
+
+### Adaptação — Solicitar especialista (RN8)
+POST {{baseUrl}}/trails/adapt/specialist
