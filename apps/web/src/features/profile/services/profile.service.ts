@@ -1,7 +1,7 @@
 import { http, uploadForm } from '@/lib/http';
 import type { AuthUser } from '@/providers/AuthProvider';
 
-export interface UpdateProfilePayload {
+export interface UpdateProfileInput {
   name?: string;
   email?: string;
   jobTitle?: string;
@@ -10,12 +10,11 @@ export interface UpdateProfilePayload {
 }
 
 export const profileService = {
-  update: (payload: UpdateProfilePayload) =>
-    http.patch<{ user: AuthUser }>('/profile', payload),
-
+  get: () => http.get<{ user: AuthUser }>('/users/me'),
+  update: (data: UpdateProfileInput) => http.patch<{ user: AuthUser }>('/users/me', data),
   uploadAvatar: (file: File) => {
     const fd = new FormData();
     fd.append('avatar', file);
-    return uploadForm<{ user: AuthUser }>('/profile/avatar', fd, 'POST');
+    return uploadForm<{ user: AuthUser }>('/users/me/avatar', fd);
   },
 };

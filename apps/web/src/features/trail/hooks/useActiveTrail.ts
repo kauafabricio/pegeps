@@ -3,7 +3,7 @@ import { trailService } from '../services/trail.service';
 
 export function useActiveTrail() {
   return useQuery({
-    queryKey: ['trail', 'active'],
+    queryKey: ['active-trail'],
     queryFn: () => trailService.getActiveTrail(),
   });
 }

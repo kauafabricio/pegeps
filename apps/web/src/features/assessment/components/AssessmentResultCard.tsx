@@ -4,114 +4,165 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import type { AssessmentResultResponse } from '../services/assessment.service';
+import type { AssessmentSubmitResult } from '../services/assessment.service';
 
 interface AssessmentResultCardProps {
-  result: AssessmentResultResponse;
-  nextModuleSlug?: string;
+  result: AssessmentSubmitResult;
+  firstName?: string;
   onRetry: () => void;
 }
 
 export function AssessmentResultCard({
   result,
-  nextModuleSlug,
+  firstName,
   onRetry,
 }: AssessmentResultCardProps) {
-  const scorePercent =
-    result.totalQuestions > 0
-      ? Math.round((result.correctCount / result.totalQuestions) * 100)
-      : 0;
+  const {
+    passed,
+    correctCount,
+    totalQuestions,
+    passThreshold,
+    moduleTitle,
+    demonstratedConcepts,
+    nextModule,
+    completedCount,
+    totalModules,
+  } = result;
 
-  return (
-    <div className="flex flex-col gap-6 max-w-xl mx-auto">
-      <Card>
-        <div className="text-center">
-          <span className="text-5xl mb-4 block" aria-hidden>
-            {result.passed ? '🏆' : '📚'}
-          </span>
-          <h2 className="text-xl font-bold text-gray-900 mb-1">
-            {result.passed ? 'Parabéns! Módulo concluído.' : 'Quase lá! Continue estudando.'}
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Você acertou <strong>{result.correctCount}</strong> de{' '}
-            <strong>{result.totalQuestions}</strong> questões ({scorePercent}%)
+  const scorePct = totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+  const trailPct = totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
+
+  if (!passed) {
+    return (
+      <div className="flex flex-col gap-6 max-w-2xl mx-auto" aria-live="polite">
+        <div>
+          <p className="text-xs font-bold text-red-700 uppercase tracking-widest mb-1">
+            Avaliação não aprovada
           </p>
-          <div className="mt-3">
-            <Badge variant={result.passed ? 'success' : 'warning'}>
-              {result.passed
-                ? `Aprovado (≥${result.passThreshold}/${result.totalQuestions})`
-                : `Não aprovado (<${result.passThreshold}/${result.totalQuestions})`}
-            </Badge>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-brand-text mb-2">
+            Quase lá{firstName ? `, ${firstName}` : ''}! Vale revisar mais um pouco.
+          </h1>
+          <p className="text-sm text-gray-600">
+            Você acertou <strong>{correctCount} de {totalQuestions}</strong> perguntas em{' '}
+            <strong>{moduleTitle}</strong>. Para desbloquear o próximo módulo, são necessárias pelo menos{' '}
+            <strong>{passThreshold} respostas corretas</strong>.
+          </p>
         </div>
 
-        {result.demonstratedConcepts.length > 0 && (
-          <div className="mt-4 border-t border-gray-100 pt-4">
-            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
-              Conceitos demonstrados
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {result.demonstratedConcepts.map((c) => (
-                <Badge key={c.id} variant="success">
-                  {c.name}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
-      </Card>
-
-      {result.passed && result.nextModule && (
-        <Card>
-          <p className="text-sm text-gray-500 mb-1">Próximo módulo desbloqueado:</p>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">{result.nextModule.title}</h3>
-          <Link href={nextModuleSlug ? `/trilha/${nextModuleSlug}` : '/trilha'}>
-            <Button className="w-full">Ir para o próximo módulo</Button>
-          </Link>
+        <Card className="bg-peach border border-brand-200 p-6">
+          <p className="text-3xl font-black text-brand-text mb-1">
+            {correctCount} de {totalQuestions} corretas ({scorePct}%)
+          </p>
+          <p className="text-sm text-brand-accent leading-relaxed mt-2">
+            💡 Converse com o Tutor Tom para revisar os materiais deste módulo e depois tente uma nova prova com questões variadas.
+          </p>
         </Card>
-      )}
 
-      {!result.passed && (
-        <div className="flex gap-3">
-          <Button variant="secondary" className="flex-1" onClick={onRetry}>
+        <div className="flex gap-3 flex-wrap">
+          <Link href="/tutor">
+            <Button size="md">Estudar com o Tom</Button>
+          </Link>
+          <Button variant="secondary" size="md" onClick={onRetry}>
             Tentar novamente
           </Button>
-          <Link href="/trilha" className="flex-1">
-            <Button variant="ghost" className="w-full">
-              Voltar para a trilha
-            </Button>
-          </Link>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {result.passed && (
-        <Link href="/trilha">
-          <Button variant="secondary" className="w-full">
-            Ver minha trilha
-          </Button>
-        </Link>
-      )}
+  return (
+    <div className="flex flex-col gap-6" aria-live="polite">
+      <div className="flex items-start gap-3">
+        <span
+          aria-hidden
+          className="w-10 h-10 rounded-full bg-emerald-100 text-brand-green flex items-center justify-center font-bold flex-shrink-0 mt-1"
+        >
+          ✓
+        </span>
+        <div>
+          <p className="text-xs font-bold text-brand-green uppercase tracking-widest mb-1">
+            Avaliação aprovada
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-black text-brand-text mb-1">
+            Um passo importante. Bem feito{firstName ? `, ${firstName}` : ''}!
+          </h1>
+          <p className="text-sm text-gray-600">
+            Você consolidou os conceitos de {moduleTitle}. Agora pode seguir para a próxima etapa da sua trilha.
+          </p>
+        </div>
+      </div>
 
-      {result.questionFeedback && result.questionFeedback.length > 0 && (
-        <details className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-          <summary className="cursor-pointer text-sm font-medium text-gray-700">
-            Ver gabarito e explicações
-          </summary>
-          <ul className="mt-4 flex flex-col gap-3">
-            {result.questionFeedback.map((fb, i) => (
-              <li
-                key={fb.questionId}
-                className={`text-sm p-3 rounded-xl ${fb.isCorrect ? 'bg-green-50' : 'bg-red-50'}`}
-              >
-                <p className="font-medium mb-1">
-                  {fb.isCorrect ? '✅' : '❌'} Questão {i + 1}
+      {/* 2-column score + demonstrated concepts (PDF page 13) */}
+      <div className="grid md:grid-cols-[260px_1fr] gap-5">
+        <Card className="border border-brand-100 flex flex-col justify-between">
+          <div>
+            <Badge variant="success" className="mb-4">✓ {moduleTitle}</Badge>
+            <p className="text-5xl font-black text-brand-text mb-2">{scorePct}%</p>
+            <p className="text-sm font-bold text-brand-text mb-3">
+              {correctCount} de {totalQuestions} respostas corretas
+            </p>
+          </div>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Avaliação concluída. Este módulo agora conta como concluído no seu grafo.
+          </p>
+        </Card>
+
+        <Card className="border border-brand-100">
+          <h2 className="text-base font-black text-brand-text mb-4">O que você demonstrou</h2>
+          {demonstratedConcepts.length > 0 ? (
+            <ul className="flex flex-col gap-3">
+              {demonstratedConcepts.map((c) => (
+                <li key={c.id} className="flex items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="w-6 h-6 rounded-full bg-emerald-100 text-brand-green flex items-center justify-center text-xs font-bold flex-shrink-0"
+                  >
+                    ✓
+                  </span>
+                  <span className="text-sm font-semibold text-brand-text">{c.name}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-600">
+              Você atingiu a pontuação mínima para concluir o módulo {moduleTitle}.
+            </p>
+          )}
+        </Card>
+      </div>
+
+      {/* Unlocked next module strip */}
+      <div className="bg-peach border border-brand-200 rounded-3xl px-6 py-5 flex items-center justify-between gap-4 flex-wrap relative overflow-hidden">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div>
+            <p className="text-[11px] font-bold text-brand-green uppercase tracking-wider">
+              ✓ Concluído
+            </p>
+            <p className="text-sm font-black text-brand-text">{moduleTitle}</p>
+          </div>
+          {nextModule && (
+            <>
+              <span className="text-brand-700 font-bold" aria-hidden>→</span>
+              <div>
+                <p className="text-[11px] font-bold text-brand-700 uppercase tracking-wider">
+                  ◉ Desbloqueado
                 </p>
-                <p className="text-gray-600">{fb.explanation}</p>
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
+                <p className="text-sm font-black text-brand-text">{nextModule.title}</p>
+              </div>
+            </>
+          )}
+        </div>
+
+        <Badge variant="success">
+          ✓ {completedCount}/{totalModules} concluídos • {trailPct}%
+        </Badge>
+      </div>
+
+      <div className="flex justify-end gap-3 flex-wrap">
+        <Link href="/trilha">
+          <Button size="md">Ver meu grafo atualizado →</Button>
+        </Link>
+      </div>
     </div>
   );
 }

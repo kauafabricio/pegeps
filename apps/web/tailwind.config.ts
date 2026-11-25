@@ -5,26 +5,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Pegeps design tokens
         brand: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          primary: '#FF7A00',
+          accent: '#A84300',
+          cream: '#FAF8F4',
+          peach: '#FFF0E3',
+          yellow: '#FFCC00',
+          green: '#1F6B4A',
+          text: '#2A2420',
+          // Orange scale
+          50: '#FFF4EA',
+          100: '#FFE4C4',
+          200: '#FFCC94',
+          300: '#FFB060',
+          400: '#FF9630',
+          500: '#FF7A00',
+          600: '#D96500',
+          700: '#A84300',
+          800: '#7A3000',
+          900: '#4D1E00',
         },
+        cream: '#FAF8F4',
+        peach: '#FFF0E3',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '2xl': '1rem',
         '3xl': '1.5rem',
+        '4xl': '2rem',
+      },
+      boxShadow: {
+        card: '0 2px 16px 0 rgba(42,36,32,0.08)',
+        'card-hover': '0 8px 32px 0 rgba(255,122,0,0.15)',
       },
     },
   },

@@ -1,13 +1,13 @@
 import { cn } from '@/lib/utils';
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info';
+type BadgeVariant = 'default' | 'success' | 'info' | 'warning' | 'orange';
 
-const variantStyles: Record<BadgeVariant, string> = {
+const styles: Record<BadgeVariant, string> = {
   default: 'bg-gray-100 text-gray-700',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-yellow-100 text-yellow-800',
-  danger: 'bg-red-100 text-red-700',
-  info: 'bg-blue-100 text-blue-700',
+  success: 'bg-emerald-50 text-brand-green border border-emerald-200',
+  info: 'bg-peach text-brand-700 border border-brand-200',
+  warning: 'bg-amber-50 text-brand-700 border border-amber-200',
+  orange: 'bg-peach text-brand-700 border border-brand-200',
 };
 
 interface BadgeProps {
@@ -20,8 +20,8 @@ export function Badge({ children, variant = 'default', className }: BadgeProps) 
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-        variantStyles[variant],
+        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold',
+        styles[variant],
         className,
       )}
     >

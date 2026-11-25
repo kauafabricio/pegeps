@@ -6,8 +6,8 @@ export const STARTUP_STAGE_LABELS: Record<string, string> = {
 };
 
 export const LEARNING_STYLE_LABELS: Record<string, string> = {
-  visual: 'Visual',
-  leitura: 'Leitura',
+  visual: 'Visual — vídeos e mapas mentais',
+  leitura: 'Leitura e escrita',
   auditivo: 'Auditivo',
   pratico: 'Prático',
 };

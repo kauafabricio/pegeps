@@ -5,11 +5,28 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   as?: ElementType;
+  type?: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
+  selected?: boolean;
+  tabIndex?: number;
+  role?: string;
+  'aria-pressed'?: boolean;
+  'aria-checked'?: boolean;
+  'aria-label'?: string;
 }
 
-export function Card({ children, className, as: Tag = 'div' }: CardProps) {
+export function Card({ children, className, as: Tag = 'div', selected, onClick, ...rest }: CardProps) {
   return (
-    <Tag className={cn('bg-white rounded-2xl shadow-sm border border-gray-100 p-6', className)}>
+    <Tag
+      className={cn(
+        'bg-white rounded-3xl shadow-card border border-transparent p-6 transition-all duration-200',
+        selected && 'border-brand-500 ring-2 ring-brand-500 bg-peach',
+        onClick && 'cursor-pointer hover:shadow-card-hover',
+        className,
+      )}
+      onClick={onClick}
+      {...rest}
+    >
       {children}
     </Tag>
   );

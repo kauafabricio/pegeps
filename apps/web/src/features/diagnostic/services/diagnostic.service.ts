@@ -1,14 +1,7 @@
 import { http } from '@/lib/http';
-import type { AuthUser } from '@/providers/AuthProvider';
 import type { DiagnosticQuestion } from '@pegeps/domain';
 
 export type PublicDiagnosticQuestion = Omit<DiagnosticQuestion, 'correctOptionId'>;
-
-export interface DiagnosticResultPayload {
-  answers: Array<{ questionId: string; selectedOptionId: string }>;
-}
-
-export type DiagnosticLevel = 'inicial' | 'intermediario' | 'avancado';
 
 export interface TrailPreview {
   id: string;
@@ -16,33 +9,45 @@ export interface TrailPreview {
   title: string;
   description: string;
   firstStep: string;
+  modulesCount: number;
+  sequence: string[];
   modules: Array<{ id: string; slug: string; title: string }>;
 }
 
-export interface DiagnosticResult {
-  level: DiagnosticLevel;
+export interface DiagnosticConceptDetail {
+  conceptId: string;
+  label: string;
+  status: 'reconhecido' | 'a_desenvolver';
+  feedback: string;
+}
+
+export interface DiagnosticSubmitResult {
+  level: 'inicial' | 'intermediario' | 'avancado';
   correctCount: number;
   totalQuestions: number;
-  concepts: Array<{
-    conceptId: string;
-    label: string;
-    status: 'reconhecido' | 'a_desenvolver';
-  }>;
+  recommendationText: string;
+  recommendedTrailId: string;
+  concepts: DiagnosticConceptDetail[];
   recommendedTrail: TrailPreview;
   defaultTrail: TrailPreview;
+}
+
+export interface TrailOptionsResponse {
+  recommended: TrailPreview;
+  default: TrailPreview;
 }
 
 export const diagnosticService = {
   getQuestions: () =>
     http.get<{ questions: PublicDiagnosticQuestion[] }>('/diagnostic/questions'),
 
-  submit: (payload: DiagnosticResultPayload) =>
-    http.post<DiagnosticResult>('/diagnostic/submit', payload),
+  submit: (answers: Array<{ questionId: string; selectedOptionId: string }>) =>
+    http.post<DiagnosticSubmitResult>('/diagnostic/submit', { answers }),
 
-  getResult: () => http.get<DiagnosticResult>('/diagnostic/result'),
+  getResult: () => http.get<DiagnosticSubmitResult>('/diagnostic/result'),
 
-  chooseTrail: (choice: 'recommended' | 'default') =>
-    http.post<{ user: AuthUser; activeTrailId: string }>('/diagnostic/choose-trail', {
-      choice,
-    }),
+  getTrailOptions: () => http.get<TrailOptionsResponse>('/trails/options'),
+
+  chooseTrail: (trailId: string) =>
+    http.post<{ activeTrailId: string }>('/trails/choose', { trailId }),
 };

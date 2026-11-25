@@ -1,4 +1,17 @@
 import { http } from '@/lib/http';
+import type { ModuleWithStatus } from '@pegeps/domain';
+
+export interface AssessmentOverviewItem extends ModuleWithStatus {
+  attemptsCount: number;
+  lastScore?: number;
+}
+
+export interface AssessmentOverview {
+  completedCount: number;
+  totalModules: number;
+  percentage: number;
+  modules: AssessmentOverviewItem[];
+}
 
 export interface AssessmentQuestion {
   id: string;
@@ -15,12 +28,7 @@ export interface AssessmentStartResponse {
   questions: AssessmentQuestion[];
 }
 
-export interface AssessmentAnswer {
-  questionId: string;
-  selectedOptionId: string;
-}
-
-export interface AssessmentResultResponse {
+export interface AssessmentSubmitResult {
   passed: boolean;
   correctCount: number;
   totalQuestions: number;
@@ -39,12 +47,16 @@ export interface AssessmentResultResponse {
 }
 
 export const assessmentService = {
+  list: () => http.get<AssessmentOverview>('/assessments'),
+
   start: (moduleId: string) =>
     http.get<AssessmentStartResponse>(`/assessments/${moduleId}/start`),
 
-  submit: (moduleId: string, variantId: string, answers: AssessmentAnswer[]) =>
-    http.post<AssessmentResultResponse>(`/assessments/${moduleId}/submit`, {
-      variantId,
-      answers,
-    }),
+  submit: (
+    moduleId: string,
+    payload: {
+      variantId: string;
+      answers: Array<{ questionId: string; selectedOptionId: string }>;
+    },
+  ) => http.post<AssessmentSubmitResult>(`/assessments/${moduleId}/submit`, payload),
 };

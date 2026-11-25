@@ -1,57 +1,52 @@
 'use client';
 
-import { useEffect, useRef, type ReactNode } from 'react';
-import { Button } from './Button';
+import * as Dialog from '@radix-ui/react-dialog';
 import { cn } from '@/lib/utils';
+import { type ReactNode } from 'react';
 
-interface DialogProps {
+interface DialogModalProps {
   open: boolean;
   onClose: () => void;
   title: string;
+  description?: string;
   children: ReactNode;
   className?: string;
 }
 
-export function Dialog({ open, onClose, title, children, className }: DialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const el = dialogRef.current;
-    if (!el) return;
-    if (open) {
-      el.showModal();
-    } else {
-      el.close();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    const el = dialogRef.current;
-    if (!el) return;
-    const handler = () => onClose();
-    el.addEventListener('close', handler);
-    return () => el.removeEventListener('close', handler);
-  }, [onClose]);
-
+export function DialogModal({ open, onClose, title, description, children, className }: DialogModalProps) {
   return (
-    <dialog
-      ref={dialogRef}
-      aria-labelledby="dialog-title"
-      className={cn(
-        'w-full max-w-md rounded-2xl bg-white p-6 shadow-xl backdrop:bg-black/40',
-        'open:flex open:flex-col open:gap-4',
-        className,
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <h2 id="dialog-title" className="text-lg font-semibold text-gray-900">
-          {title}
-        </h2>
-        <Button variant="ghost" size="sm" onClick={onClose} aria-label="Fechar">
-          ✕
-        </Button>
-      </div>
-      {children}
-    </dialog>
+    <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content
+          className={cn(
+            'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
+            'w-full max-w-md rounded-3xl bg-white p-8 shadow-xl',
+            'data-[state=open]:animate-in data-[state=closed]:animate-out',
+            'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+            'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+            className,
+          )}
+        >
+          <Dialog.Title className="text-lg font-bold text-brand-text mb-2">
+            {title}
+          </Dialog.Title>
+          {description && (
+            <Dialog.Description className="text-sm text-gray-500 mb-4">
+              {description}
+            </Dialog.Description>
+          )}
+          {children}
+          <Dialog.Close asChild>
+            <button
+              className="absolute top-4 right-4 rounded-full p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500"
+              aria-label="Fechar"
+            >
+              ✕
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

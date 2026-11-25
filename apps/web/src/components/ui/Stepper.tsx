@@ -1,42 +1,70 @@
 import { cn } from '@/lib/utils';
 
-interface Step {
-  label: string;
-  done: boolean;
-  active: boolean;
-}
-
 interface StepperProps {
-  steps: Step[];
+  steps: string[];
+  current: number; // 0-based
   className?: string;
+  ariaLabel?: string;
 }
 
-export function Stepper({ steps, className }: StepperProps) {
+export function Stepper({
+  steps,
+  current,
+  className,
+  ariaLabel = 'Etapas do processo',
+}: StepperProps) {
   return (
-    <nav aria-label="Progresso" className={cn('flex items-center gap-2', className)}>
-      {steps.map((step, i) => (
-        <div key={i} className="flex items-center gap-2">
-          <div className="flex flex-col items-center">
-            <div
-              aria-current={step.active ? 'step' : undefined}
-              className={cn(
-                'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors',
-                step.done
-                  ? 'bg-brand-600 text-white'
-                  : step.active
-                    ? 'border-2 border-brand-600 text-brand-600 bg-white'
-                    : 'bg-gray-200 text-gray-500',
+    <nav aria-label={ariaLabel} className={cn('w-full', className)}>
+      <ol className="flex items-center w-full">
+        {steps.map((step, i) => {
+          const isCompleted = i < current;
+          const isActive = i === current;
+          return (
+            <li key={step} className="flex items-center flex-1 last:flex-none">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    'flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold border-2 transition-all flex-shrink-0',
+                    isCompleted
+                      ? 'bg-brand-green border-brand-green text-white'
+                      : isActive
+                        ? 'bg-brand-700 border-brand-700 text-white'
+                        : 'bg-white border-gray-300 text-gray-600',
+                  )}
+                  aria-current={isActive ? 'step' : undefined}
+                >
+                  {isCompleted ? (
+                    <span aria-hidden>✓</span>
+                  ) : (
+                    <span>{i + 1}</span>
+                  )}
+                </div>
+                <span
+                  className={cn(
+                    'text-xs font-semibold whitespace-nowrap hidden sm:block',
+                    isActive
+                      ? 'text-brand-700'
+                      : isCompleted
+                        ? 'text-brand-green'
+                        : 'text-gray-600',
+                  )}
+                >
+                  {step}
+                </span>
+              </div>
+              {i < steps.length - 1 && (
+                <div
+                  aria-hidden
+                  className={cn(
+                    'flex-1 h-0.5 mx-2 min-w-[12px]',
+                    i < current ? 'bg-brand-green' : 'bg-gray-200',
+                  )}
+                />
               )}
-            >
-              {step.done ? '✓' : i + 1}
-            </div>
-            <span className="text-xs mt-1 text-gray-600 max-w-[6rem] text-center">{step.label}</span>
-          </div>
-          {i < steps.length - 1 && (
-            <div className={cn('h-0.5 w-8 mt-[-1.5rem]', step.done ? 'bg-brand-600' : 'bg-gray-200')} />
-          )}
-        </div>
-      ))}
+            </li>
+          );
+        })}
+      </ol>
     </nav>
   );
 }

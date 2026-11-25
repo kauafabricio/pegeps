@@ -2,12 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 @layer base {
   :root {
-    --color-brand-500: #6366f1;
-    --color-brand-600: #4f46e5;
+    /* Pegeps design tokens */
+    --color-primary: #FF7A00;
+    --color-accent: #A84300;
+    --color-cream: #FAF8F4;
+    --color-peach: #FFF0E3;
+    --color-yellow: #FFCC00;
+    --color-green: #1F6B4A;
+    --color-text: #2A2420;
+
+    /* Semantic */
+    --radius-card: 1.5rem;   /* 24px */
+    --radius-card-lg: 2rem;  /* 32px */
+    --radius-btn: 9999px;    /* pill */
   }
 
   *,
@@ -22,21 +31,25 @@
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    background-color: var(--color-cream);
+    color: var(--color-text);
+    font-family: var(--font-space-grotesk), system-ui, sans-serif;
   }
 
-  /* Focus visible para acessibilidade */
+  /* Strong focus ring for accessibility */
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-brand-500 rounded;
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 
-  /* Removes default focus outline, only shows focus-visible */
   :focus:not(:focus-visible) {
     outline: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold leading-tight;
+    color: var(--color-text);
   }
 }
 
@@ -52,4 +65,25 @@
     white-space: nowrap;
     border-width: 0;
   }
+
+  .text-brand-primary { color: var(--color-primary); }
+  .text-brand-accent  { color: var(--color-accent); }
+  .bg-cream           { background-color: var(--color-cream); }
+  .bg-peach           { background-color: var(--color-peach); }
+
+  /* Respect prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Decorative circle utility */
+.deco-circle {
+  border-radius: 50%;
+  pointer-events: none;
+  user-select: none;
 }

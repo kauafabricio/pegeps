@@ -6,12 +6,16 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useState } from 'react';
 import { extractErrorMessage } from '@/lib/utils';
 import { registerSchema, type RegisterInput } from '../schemas/auth.schema';
 
-export function RegisterForm() {
+interface RegisterFormProps {
+  onSwitchToLogin: () => void;
+  onNameChange?: (name: string) => void;
+}
+
+export function RegisterForm({ onSwitchToLogin, onNameChange }: RegisterFormProps) {
   const { register: registerUser } = useAuth();
   const router = useRouter();
   const [serverError, setServerError] = useState('');
@@ -19,15 +23,35 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
+  } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    mode: 'onChange',
+  });
+
+  const nameValue = watch('name') ?? '';
+  const emailValue = watch('email') ?? '';
+  const passwordValue = watch('password') ?? '';
+
+  const isNameValid = nameValue.trim().length >= 2;
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue.trim());
+  const isPasswordValid =
+    passwordValue.length >= 8 && /[a-zA-Z]/.test(passwordValue) && /\d/.test(passwordValue);
+
+  const nameField = register('name');
 
   async function onSubmit(data: RegisterInput) {
     setServerError('');
     try {
-      await registerUser(data.name, data.email, data.password);
-      // After register, onboardingStep = diagnostic
-      router.push('/onboarding/diagnostico');
+      const user = await registerUser(data.name, data.email, data.password);
+      if (user.onboardingStep === 'done') {
+        router.push('/trilha');
+      } else if (user.onboardingStep === 'trail') {
+        router.push('/escolher-trilha');
+      } else {
+        router.push('/diagnostico');
+      }
     } catch (err) {
       setServerError(extractErrorMessage(err));
     }
@@ -40,46 +64,82 @@ export function RegisterForm() {
       aria-label="Formulário de cadastro"
       className="flex flex-col gap-4"
     >
-      <Input
-        label="Nome completo"
-        {...register('name')}
-        error={errors.name?.message}
-        autoComplete="name"
-        required
-      />
-      <Input
-        label="E-mail"
-        type="email"
-        {...register('email')}
-        error={errors.email?.message}
-        autoComplete="email"
-        required
-      />
-      <Input
-        label="Senha"
-        type="password"
-        {...register('password')}
-        error={errors.password?.message}
-        autoComplete="new-password"
-        hint="Mínimo 8 caracteres com letras e números."
-        required
-      />
+      <div>
+        <Input
+          label="Nome completo"
+          {...nameField}
+          onChange={(e) => {
+            nameField.onChange(e);
+            onNameChange?.(e.target.value);
+          }}
+          error={errors.name?.message}
+          success={isNameValid}
+          autoComplete="name"
+          required
+          placeholder="Marina Costa"
+        />
+        {!errors.name && (
+          <p className={`text-xs mt-1 ${isNameValid ? 'text-brand-green font-medium' : 'text-gray-600'}`}>
+            <span aria-hidden>{isNameValid ? '✓' : '○'}</span> Nome preenchido.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Input
+          label="E-mail"
+          type="email"
+          {...register('email')}
+          error={errors.email?.message}
+          success={isEmailValid}
+          autoComplete="email"
+          required
+          placeholder="marina@startup.com"
+        />
+        {!errors.email && (
+          <p className={`text-xs mt-1 ${isEmailValid ? 'text-brand-green font-medium' : 'text-gray-600'}`}>
+            <span aria-hidden>{isEmailValid ? '✓' : '○'}</span> Formato de e-mail válido.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <Input
+          label="Senha"
+          type="password"
+          {...register('password')}
+          error={errors.password?.message}
+          success={isPasswordValid}
+          autoComplete="new-password"
+          required
+          placeholder="••••••••••••"
+        />
+        {!errors.password && (
+          <p className={`text-xs mt-1 ${isPasswordValid ? 'text-brand-green font-medium' : 'text-gray-600'}`}>
+            <span aria-hidden>{isPasswordValid ? '✓' : '○'}</span> 8 ou mais caracteres · letras e números.
+          </p>
+        )}
+      </div>
 
       {serverError && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" aria-live="polite" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
           {serverError}
         </p>
       )}
 
-      <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
-        Criar conta
+      <Button type="submit" isLoading={isSubmitting} className="w-full mt-2 bg-brand-600 hover:bg-brand-700" size="lg">
+        Criar conta e começar →
       </Button>
 
       <p className="text-sm text-center text-gray-600">
-        Já tem uma conta?{' '}
-        <Link href="/login" className="text-brand-600 font-medium hover:underline">
+        Já tem conta?{' '}
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="text-brand-700 font-semibold hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 rounded"
+        >
           Entrar
-        </Link>
+        </button>
       </p>
     </form>
   );

@@ -1,120 +1,136 @@
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import type { DiagnosticLevel, DiagnosticResult, TrailPreview } from '../services/diagnostic.service';
+import type { DiagnosticSubmitResult } from '../services/diagnostic.service';
 
 interface DiagnosticResultCardProps {
-  result: DiagnosticResult;
-  onChoose: (choice: 'recommended' | 'default') => void;
-  isChoosing: boolean;
+  result: DiagnosticSubmitResult;
+  firstName?: string;
+  onReview: () => void;
 }
 
-const levelBadge: Record<DiagnosticLevel, 'info' | 'warning' | 'success'> = {
-  inicial: 'info',
-  intermediario: 'warning',
-  avancado: 'success',
+const LEVEL_LABELS: Record<DiagnosticSubmitResult['level'], string> = {
+  inicial: 'Nível inicial',
+  intermediario: 'Nível intermediário',
+  avancado: 'Nível avançado',
 };
 
-const levelLabels: Record<DiagnosticLevel, string> = {
-  inicial: 'Inicial',
-  intermediario: 'Intermediário',
-  avancado: 'Avançado',
-};
-
-function TrailModulesPreview({ trail }: { trail: TrailPreview }) {
-  return (
-    <>
-      <p className="text-xs text-brand-700 bg-brand-50 rounded-lg px-3 py-2 mb-3">
-        Primeiro passo: {trail.firstStep}
-      </p>
-      {trail.modules.length > 0 && (
-        <ol className="text-xs text-gray-500 flex flex-wrap gap-1.5 mb-4">
-          {trail.modules.map((mod, idx) => (
-            <li key={mod.id} className="bg-gray-100 rounded-md px-2 py-0.5">
-              {idx + 1}. {mod.title}
-            </li>
-          ))}
-        </ol>
-      )}
-    </>
-  );
-}
-
-export function DiagnosticResultCard({ result, onChoose, isChoosing }: DiagnosticResultCardProps) {
-  const isRecommendedSameAsDefault = result.recommendedTrail.id === result.defaultTrail.id;
-  const levelLabel = levelLabels[result.level] ?? result.level;
+export function DiagnosticResultCard({
+  result,
+  firstName,
+  onReview,
+}: DiagnosticResultCardProps) {
+  const {
+    level,
+    correctCount,
+    totalQuestions,
+    recommendationText,
+    concepts,
+    recommendedTrail,
+  } = result;
 
   return (
-    <div className="flex flex-col gap-6 max-w-xl mx-auto">
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-3xl" aria-hidden>
-            🎯
-          </span>
+    <div className="flex flex-col gap-6 max-w-3xl mx-auto" aria-live="polite">
+      <div>
+        <p className="text-xs font-bold text-brand-700 uppercase tracking-widest mb-1">
+          Diagnóstico concluído
+        </p>
+        <h1 className="text-2xl sm:text-3xl font-black text-brand-text mb-2">
+          Seu ponto de partida está mais claro{firstName ? `, ${firstName}` : ''}.
+        </h1>
+        <p className="text-sm text-gray-600">{recommendationText}</p>
+      </div>
+
+      {/* Main result card */}
+      <Card className="p-6 sm:p-8 border border-brand-100">
+        <div className="mb-4">
+          <Badge variant="orange">{LEVEL_LABELS[level] ?? 'Nível inicial'}</Badge>
+        </div>
+
+        {/* Peach summary banner */}
+        <div className="bg-peach rounded-3xl p-6 flex items-center justify-between gap-6 mb-6 relative overflow-hidden">
           <div>
-            <p className="text-sm text-gray-500">
-              Seu nível ({result.correctCount} de {result.totalQuestions} acertos)
+            <p className="text-3xl font-black text-brand-text">
+              {correctCount} de {totalQuestions}
             </p>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-lg font-bold text-gray-900">{levelLabel}</span>
-              <Badge variant={levelBadge[result.level] ?? 'default'}>{levelLabel}</Badge>
-            </div>
+            <p className="text-sm font-bold text-brand-text mb-1">
+              conceitos reconhecidos
+            </p>
+            <p className="text-xs text-brand-accent">
+              Conhecimento em construção. Este resumo considera apenas as três situações do diagnóstico.
+            </p>
+          </div>
+          {/* Decorative orange badge graphic */}
+          <div
+            aria-hidden="true"
+            className="hidden sm:flex w-20 h-20 rounded-full bg-brand-500 items-center justify-center flex-shrink-0 relative"
+          >
+            <div className="w-12 h-12 rounded-full border-4 border-brand-yellow bg-white/20" />
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">Conceitos avaliados:</p>
-          <ul className="flex flex-col gap-1.5">
-            {result.concepts.map((concept) => {
-              const recognized = concept.status === 'reconhecido';
-              return (
-                <li key={concept.conceptId} className="flex items-center gap-2 text-sm">
-                  <span aria-hidden>{recognized ? '✅' : '⚠️'}</span>
-                  <span>{concept.label}</span>
-                  <span className="text-gray-400 text-xs">
-                    {recognized ? 'Reconhecido' : 'A desenvolver'}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+        {/* Concept list */}
+        <ul className="flex flex-col divide-y divide-brand-100" aria-label="Resultado por conceito">
+          {concepts.map((c) => {
+            const recognized = c.status === 'reconhecido';
+            return (
+              <li key={c.conceptId} className="py-4 first:pt-0 last:pb-0 flex items-start gap-3">
+                <span
+                  aria-hidden
+                  className={`mt-0.5 inline-flex w-6 h-6 rounded-full items-center justify-center text-xs font-bold flex-shrink-0 ${
+                    recognized
+                      ? 'bg-emerald-100 text-brand-green'
+                      : 'border-2 border-dashed border-gray-400 text-gray-600'
+                  }`}
+                >
+                  {recognized ? '✓' : '○'}
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-brand-text">
+                    {c.label} •{' '}
+                    <span className={recognized ? 'text-brand-green' : 'text-brand-700'}>
+                      {recognized ? 'Reconhecido' : 'A desenvolver'}
+                    </span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-0.5">{c.feedback}</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </Card>
+
+      {/* Recommendation strip */}
+      <div className="bg-peach border border-brand-200 rounded-3xl px-6 py-5 flex items-center justify-between gap-4 relative overflow-hidden">
+        <div className="flex items-start gap-3">
+          <span aria-hidden className="text-lg text-brand-700 mt-0.5">ⓘ</span>
+          <div>
+            <p className="text-sm font-bold text-brand-text">
+              Recomendação: começar por {recommendedTrail.sequence[0] ?? recommendedTrail.title}.
+            </p>
+            <p className="text-xs text-brand-accent mt-0.5 leading-relaxed">
+              {recommendedTrail.description}
+            </p>
+          </div>
         </div>
-      </Card>
+        <div
+          aria-hidden="true"
+          className="hidden sm:block w-14 h-14 rounded-full bg-brand-500 flex-shrink-0 translate-y-4"
+        />
+      </div>
 
-      <Card>
-        <p className="text-sm font-semibold text-brand-700 uppercase tracking-wide mb-1">
-          Trilha recomendada para você
-        </p>
-        <h3 className="text-xl font-bold text-gray-900 mb-1">{result.recommendedTrail.title}</h3>
-        <p className="text-sm text-gray-600 mb-3">{result.recommendedTrail.description}</p>
-        <TrailModulesPreview trail={result.recommendedTrail} />
-        <Button
-          className="w-full"
-          onClick={() => onChoose('recommended')}
-          isLoading={isChoosing}
-        >
-          Seguir trilha recomendada
+      {/* Actions */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <Button variant="ghost" onClick={onReview} size="md">
+          ← Revisar respostas
         </Button>
-      </Card>
-
-      {!isRecommendedSameAsDefault && (
-        <Card>
-          <p className="text-sm font-medium text-gray-500 mb-1">Ou comece pelo início</p>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">{result.defaultTrail.title}</h3>
-          <p className="text-sm text-gray-600 mb-3">{result.defaultTrail.description}</p>
-          <TrailModulesPreview trail={result.defaultTrail} />
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={() => onChoose('default')}
-            isLoading={isChoosing}
-          >
-            Seguir trilha padrão
-          </Button>
-        </Card>
-      )}
+        <Link href="/escolher-trilha">
+          <Button size="md">Escolher minha trilha →</Button>
+        </Link>
+      </div>
     </div>
   );
 }

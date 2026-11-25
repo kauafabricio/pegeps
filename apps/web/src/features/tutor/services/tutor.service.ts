@@ -1,14 +1,28 @@
 import { http } from '@/lib/http';
-import type { TutorOptionButton, TutorStepAction } from '../types';
 
-export interface TutorStepPayload {
-  action: TutorStepAction;
-  learningStyle?: string;
-  conceptId?: string;
+export type TutorNodeId = 'greeting' | 'choose_concept' | 'materials_ready' | 'trail_completed';
+
+export interface TutorOptionButton {
+  id: string;
+  label: string;
+  action: 'start' | 'select_style' | 'select_concept' | 'change_style' | 'change_concept' | 'go_to_assessment';
+  recommended?: boolean;
+  payload?: {
+    learningStyle?: string;
+    conceptId?: string;
+  };
+}
+
+export interface TutorMaterial {
+  id?: string;
+  type: string;
+  title: string;
+  url: string;
+  author?: string;
 }
 
 export interface TutorStepResponse {
-  nodeId: 'greeting' | 'choose_concept' | 'materials_ready' | 'trail_completed';
+  nodeId: TutorNodeId;
   activeModule: {
     id: string;
     title: string;
@@ -19,18 +33,12 @@ export interface TutorStepResponse {
   selectedStyle?: string;
   selectedConcept?: { id: string; name: string };
   usedStyleFallback?: boolean;
-  materials: Array<{
-    id?: string;
-    type: string;
-    title: string;
-    url: string;
-    author?: string;
-  }>;
+  materials: TutorMaterial[];
   options: TutorOptionButton[];
 }
 
 export const tutorService = {
-  start: () => http.post<TutorStepResponse>('/tutor/step', { action: 'start' }),
-
-  step: (payload: TutorStepPayload) => http.post<TutorStepResponse>('/tutor/step', payload),
+  start: () => http.get<TutorStepResponse>('/tutor/start'),
+  step: (body: { action: string; learningStyle?: string; conceptId?: string }) =>
+    http.post<TutorStepResponse>('/tutor/step', body),
 };

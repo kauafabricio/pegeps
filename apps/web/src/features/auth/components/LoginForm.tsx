@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useState } from 'react';
 import { extractErrorMessage } from '@/lib/utils';
 import { loginSchema, type LoginInput } from '../schemas/auth.schema';
-import { OnboardingStep } from '@pegeps/domain';
 
-export function LoginForm() {
+interface LoginFormProps {
+  onSwitchToRegister: () => void;
+}
+
+export function LoginForm({ onSwitchToRegister }: LoginFormProps) {
   const { login } = useAuth();
   const router = useRouter();
   const [serverError, setServerError] = useState('');
@@ -26,12 +28,14 @@ export function LoginForm() {
   async function onSubmit(data: LoginInput) {
     setServerError('');
     try {
-      const loggedUser = await login(data.email, data.password);
-      router.push(
-        loggedUser.onboardingStep === OnboardingStep.Done
-          ? '/trilha'
-          : '/onboarding/diagnostico',
-      );
+      const user = await login(data.email, data.password);
+      if (user.onboardingStep === 'done') {
+        router.push('/trilha');
+      } else if (user.onboardingStep === 'trail') {
+        router.push('/escolher-trilha');
+      } else {
+        router.push('/diagnostico');
+      }
     } catch (err) {
       setServerError(extractErrorMessage(err));
     }
@@ -51,6 +55,7 @@ export function LoginForm() {
         error={errors.email?.message}
         autoComplete="email"
         required
+        placeholder="marina@startup.com"
       />
       <Input
         label="Senha"
@@ -59,23 +64,28 @@ export function LoginForm() {
         error={errors.password?.message}
         autoComplete="current-password"
         required
+        placeholder="••••••••"
       />
 
       {serverError && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" aria-live="polite" className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
           {serverError}
         </p>
       )}
 
-      <Button type="submit" isLoading={isSubmitting} className="w-full mt-2">
-        Entrar
+      <Button type="submit" isLoading={isSubmitting} className="w-full mt-2 bg-brand-600 hover:bg-brand-700" size="lg">
+        Entrar →
       </Button>
 
       <p className="text-sm text-center text-gray-600">
-        Ainda não tem conta?{' '}
-        <Link href="/cadastro" className="text-brand-600 font-medium hover:underline">
-          Criar conta grátis
-        </Link>
+        Não tem conta?{' '}
+        <button
+          type="button"
+          onClick={onSwitchToRegister}
+          className="text-brand-700 font-semibold hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 rounded"
+        >
+          Criar conta
+        </button>
       </p>
     </form>
   );

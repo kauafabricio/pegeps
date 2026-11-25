@@ -1,10 +1,6 @@
 import { http } from '@/lib/http';
 
-export interface AdaptPayload {
-  context: string;
-}
-
-export interface AdaptStatusResponse {
+export interface AdaptStatus {
   canAdapt: boolean;
   cooldownDays: number;
   lastAdaptationAt: string | null;
@@ -12,13 +8,12 @@ export interface AdaptStatusResponse {
   daysRemaining: number;
 }
 
-export interface AdaptResult {
+export interface AdaptAiResult {
   trail: {
     id: string;
     slug: string;
     title: string;
     description: string;
-    firstStep: string;
   };
   adaptedAt: string;
 }
@@ -31,9 +26,11 @@ export interface SpecialistRequestResult {
 }
 
 export const adaptService = {
-  getStatus: () => http.get<AdaptStatusResponse>('/adapt/status'),
+  getStatus: () => http.get<AdaptStatus>('/adapt/status'),
 
-  adapt: (payload: AdaptPayload) => http.post<AdaptResult>('/adapt/ai', payload),
+  adaptWithAi: (context: string) =>
+    http.post<AdaptAiResult>('/adapt/ai', { context }),
 
-  requestSpecialist: () => http.post<SpecialistRequestResult>('/adapt/specialist'),
+  requestSpecialist: () =>
+    http.post<SpecialistRequestResult>('/adapt/specialist'),
 };

@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 export const profileSchema = z.object({
-  name: z.string().trim().min(2, 'Mínimo 2 caracteres.').max(120).optional().or(z.literal('')),
-  email: z.string().trim().email('E-mail inválido.').toLowerCase().optional().or(z.literal('')),
-  jobTitle: z.string().trim().max(120).optional().or(z.literal('')),
-  startupStage: z.string().optional(),
-  learningStyle: z.string().optional(),
+  name: z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
+  email: z.string().email('E-mail inválido'),
+  jobTitle: z.string().optional(),
+  startupStage: z.enum(['ideacao', 'validacao', 'tracao', 'escala', '']).optional(),
+  learningStyle: z.enum(['visual', 'leitura', 'auditivo', 'pratico', '']).optional(),
 });
 
 export type ProfileInput = z.infer<typeof profileSchema>;

@@ -8,7 +8,7 @@ export interface TrailData {
     title: string;
     description: string;
     kind: string;
-    firstStep: string;
+    firstStep?: string;
   };
   progress: {
     completedCount: number;
